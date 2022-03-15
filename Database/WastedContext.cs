@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Npgsql;
 using WastedApi.Models;
+using WastedApi.Requests;
 
 namespace WastedApi.Database
 {
@@ -15,6 +17,7 @@ namespace WastedApi.Database
         public WastedContext(DbContextOptions<WastedContext> options)
             : base(options)
         {
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<Category>("category_enum");
         }
 
         public virtual DbSet<Jwt> Jwts { get; set; } = null!;
@@ -129,6 +132,7 @@ namespace WastedApi.Database
                     .HasColumnName("name");
 
                 entity.Property(e => e.Weight).HasColumnName("weight");
+                entity.Property(e => e.Category).HasColumnName("category");
 
                 entity.HasOne(d => d.AddedByNavigation)
                     .WithMany(p => p.Offers)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace WastedApi.Models
 {
@@ -14,7 +15,9 @@ namespace WastedApi.Models
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
 
+        [JsonIgnore]
         public virtual ICollection<Member> Members { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Offer> Offers { get; set; }
     }
 }

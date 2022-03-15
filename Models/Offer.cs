@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
+using WastedApi.Requests;
 
 namespace WastedApi.Models
 {
@@ -15,7 +17,12 @@ namespace WastedApi.Models
         public string Name { get; set; } = null!;
         public int Weight { get; set; }
 
+        public Category Category { get; set; }
+
+
+        [JsonIgnore]
         public virtual Vendor AddedByNavigation { get; set; } = null!;
+        [JsonIgnore]
         public virtual ICollection<OfferEntry> OfferEntries { get; set; }
     }
 }
