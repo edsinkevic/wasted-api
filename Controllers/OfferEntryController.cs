@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WastedApi.Database;
+using WastedApi.Extensions;
+using WastedApi.Requests;
 
 namespace WastedApi.Controllers;
 
@@ -25,5 +27,37 @@ public class OfferEntryController : ControllerBase
 
         return Ok(offerEntries);
     }
+
+
+    [HttpPost]
+    public async Task<ActionResult<IEnumerable<OfferEntry>>> Post([FromBody] OfferEntryCreate request)
+    {
+        var existing = _context.OfferEntries.Where(item => item.OfferId == request.OfferId || item.Expiry == request.Expiry);
+        if (existing.Count() > 0)
+        {
+            var updated = await existing.FirstAsync();
+
+            updated.Amount = updated.Amount + request.Amount;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(updated);
+        }
+
+        var item = new OfferEntry
+        {
+            Amount = request.Amount,
+            OfferId = request.OfferId,
+            Added = DateTime.Now.ToUnspecified(),
+            Expiry = request.Expiry.ToUnspecified(),
+            Id = Guid.NewGuid()
+        };
+
+        await _context.OfferEntries.AddAsync(item);
+        await _context.SaveChangesAsync();
+
+        return Ok(item);
+    }
+
 
 }

@@ -20,7 +20,6 @@ namespace WastedApi.Models
         public string Hash { get; set; } = null!;
         public string Role { get; set; } = null!;
 
-        [JsonIgnore]
         public virtual ICollection<Jwt> Jwts { get; set; }
     }
 }

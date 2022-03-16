@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
+using WastedApi.Models;
 
 namespace WastedApi.Requests
 {
@@ -10,9 +13,4 @@ namespace WastedApi.Requests
         public int Weight { get; set; }
         public Category Category { get; set; }
     }
-    public enum Category
-    {
-        groceries, drinks, meat, sweets, other
-    }
 }
-//CREATE TYPE CATEGORY_ENUM AS ENUM ('groceries', 'drinks', 'meat', 'sweets', 'other');        

@@ -25,15 +25,17 @@ public class AuthenticationController : ControllerBase
     [Route("login")]
     public async Task<ActionResult<User>> Login([FromBody] UserLogin model)
     {
-        var existingUser = await _context.Users.Where(user => user.UserName == model.UserName).FirstAsync();
-        if (existingUser == null)
+        var existing = _context.Users.Where(user => user.UserName == model.UserName);
+        if (existing.Count() == 0)
             return BadRequest();
 
-        if (!BCrypt.Net.BCrypt.Verify(model.Password, existingUser.Hash))
+        var user = await existing.FirstAsync();
+
+        if (!BCrypt.Net.BCrypt.Verify(model.Password, user.Hash))
             return BadRequest();
 
 
-        return Ok();
+        return Ok(user);
     }
 
     [HttpPost]
