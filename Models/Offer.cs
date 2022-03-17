@@ -20,7 +20,7 @@ namespace WastedApi.Models
         public Category Category { get; set; }
 
 
-        public virtual Vendor AddedByNavigation { get; set; } = null!;
+        public virtual Vendor Vendor { get; set; } = null!;
         public virtual ICollection<OfferEntry> OfferEntries { get; set; }
     }
 }

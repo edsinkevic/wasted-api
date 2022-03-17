@@ -6,6 +6,8 @@ using WastedApi.Models;
 using WastedApi.Requests;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using WastedApi.Helpers;
+
 namespace WastedApi.Controllers;
 
 [Route("[controller]")]
@@ -13,11 +15,13 @@ namespace WastedApi.Controllers;
 public class AuthenticationController : ControllerBase
 {
     private readonly WastedContext _context;
+    private readonly JwtService _jwt;
     private readonly IConfiguration _configuration;
 
-    public AuthenticationController(WastedContext context, IConfiguration configuration)
+    public AuthenticationController(WastedContext context, JwtService jwt, IConfiguration configuration)
     {
         _context = context;
+        _jwt = jwt;
         _configuration = configuration;
     }
 
@@ -34,8 +38,17 @@ public class AuthenticationController : ControllerBase
         if (!BCrypt.Net.BCrypt.Verify(model.Password, user.Hash))
             return BadRequest();
 
+        var jwt = _jwt.Generate(user.Id);
 
-        return Ok(user);
+        Response.Cookies.Append("jwt", jwt, new CookieOptions
+        {
+            HttpOnly = true
+        });
+
+        return Ok(new
+        {
+            message = "success"
+        });
     }
 
     [HttpPost]
@@ -64,5 +77,29 @@ public class AuthenticationController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok(user);
+    }
+
+    [HttpGet("user")]
+    public IActionResult GetUser()
+    {
+        var jwt = Request.Cookies["jwt"];
+
+        Console.WriteLine(jwt);
+
+        if (jwt == null)
+            return Unauthorized();
+
+        try
+        {
+            var token = _jwt.Verify(jwt);
+            var id = Guid.Parse(token.Issuer);
+            var user = _context.Users.Find(id);
+
+            return Ok(user);
+        }
+        catch (Exception)
+        {
+            return Unauthorized();
+        }
     }
 }
