@@ -7,8 +7,7 @@ namespace WastedApi.Helpers;
 public class JwtService
 {
 
-    private string secureKey = "very secure lmao";
-    public string Generate(Guid id)
+    public string Generate(Guid id, string secureKey)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secureKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
@@ -20,7 +19,7 @@ public class JwtService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public JwtSecurityToken Verify(string jwt)
+    public JwtSecurityToken Verify(string jwt, string secureKey)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(secureKey);
