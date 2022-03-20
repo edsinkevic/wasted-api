@@ -134,7 +134,7 @@ namespace WastedApi.Database
                 entity.Property(e => e.Weight).HasColumnName("weight");
                 entity.Property(e => e.Category).HasColumnName("category");
 
-                entity.HasOne(d => d.AddedByNavigation)
+                entity.HasOne(d => d.Vendor)
                     .WithMany(p => p.Offers)
                     .HasForeignKey(d => d.AddedBy)
                     .HasConstraintName("offers_added_by_fkey");

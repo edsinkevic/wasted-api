@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WastedApi.Database;
 using WastedApi.Extensions;
+using WastedApi.Models;
 using WastedApi.Requests;
 
 namespace WastedApi.Controllers;
@@ -23,7 +24,7 @@ public class OfferEntryController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<OfferEntry>>> Get()
     {
-        var offerEntries = await _context.OfferEntries.ToListAsync();
+        var offerEntries = await _context.OfferEntries.Include(item => item.Offer).ThenInclude(offer => offer.Vendor).ToListAsync();
 
         return Ok(offerEntries);
     }
@@ -32,7 +33,7 @@ public class OfferEntryController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<IEnumerable<OfferEntry>>> Post([FromBody] OfferEntryCreate request)
     {
-        var existing = _context.OfferEntries.Where(item => item.OfferId == request.OfferId || item.Expiry == request.Expiry);
+        var existing = _context.OfferEntries.Where(item => item.OfferId == request.OfferId && item.Expiry == request.Expiry);
         if (existing.Count() > 0)
         {
             var updated = await existing.FirstAsync();

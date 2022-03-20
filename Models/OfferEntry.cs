@@ -13,5 +13,6 @@ namespace WastedApi
         public int Amount { get; set; }
 
         public virtual Offer Offer { get; set; } = null!;
+
     }
 }
