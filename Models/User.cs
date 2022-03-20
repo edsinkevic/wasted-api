@@ -8,7 +8,6 @@ namespace WastedApi.Models
     {
         public User()
         {
-            Jwts = new HashSet<Jwt>();
         }
 
         public Guid Id { get; set; }
@@ -19,7 +18,5 @@ namespace WastedApi.Models
 
         public string Hash { get; set; } = null!;
         public string Role { get; set; } = null!;
-
-        public virtual ICollection<Jwt> Jwts { get; set; }
     }
 }
