@@ -19,8 +19,6 @@ namespace WastedApi.Database
         {
             NpgsqlConnection.GlobalTypeMapper.MapEnum<Category>("category_enum");
         }
-
-        public virtual DbSet<Jwt> Jwts { get; set; } = null!;
         public virtual DbSet<Member> Members { get; set; } = null!;
         public virtual DbSet<Offer> Offers { get; set; } = null!;
         public virtual DbSet<OfferEntry> OfferEntries { get; set; } = null!;
@@ -39,34 +37,6 @@ namespace WastedApi.Database
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasPostgresEnum("category_enum", new[] { "groceries", "drinks", "meat", "sweets", "other" });
-
-            modelBuilder.Entity<Jwt>(entity =>
-            {
-                entity.ToTable("jwt");
-
-                entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
-
-                entity.Property(e => e.Expiry)
-                    .HasColumnType("timestamp without time zone")
-                    .HasColumnName("expiry");
-
-                entity.Property(e => e.Identity).HasColumnName("identity");
-
-                entity.Property(e => e.Jwt1)
-                    .HasColumnType("character varying")
-                    .HasColumnName("jwt");
-
-                entity.Property(e => e.LastTouched)
-                    .HasColumnType("timestamp without time zone")
-                    .HasColumnName("last_touched");
-
-                entity.HasOne(d => d.IdentityNavigation)
-                    .WithMany(p => p.Jwts)
-                    .HasForeignKey(d => d.Identity)
-                    .HasConstraintName("jwt_identity_fkey");
-            });
 
             modelBuilder.Entity<Member>(entity =>
             {

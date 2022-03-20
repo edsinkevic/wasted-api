@@ -31,11 +31,20 @@ public class AuthenticationController : ControllerBase
     [Route("member/register")]
     public async Task<ActionResult<User>> MemberRegister([FromBody] MemberSignup model)
     {
+        var errors = model.isValid();
+
+        if (errors.Count > 0)
+            return Conflict(new { errors = errors });
+
         var existing = await _context.Members.Where(user => user.UserName == model.UserName).ToListAsync();
         if (existing.Count > 0)
-            return StatusCode(StatusCodes.Status500InternalServerError, "Username taken");
+            return Conflict(new { errors = new List<string> { "Username taken" } });
 
-        var salt = BCrypt.Net.BCrypt.GenerateSalt(20);
+        existing = await _context.Members.Where(user => user.Email == model.Email).ToListAsync();
+        if (existing.Count > 0)
+            return Conflict(new { errors = new List<string> { "Email taken" } });
+
+        var salt = BCrypt.Net.BCrypt.GenerateSalt(13);
         var hash = BCrypt.Net.BCrypt.HashPassword(model.Password, salt);
 
         var user = new Member
@@ -63,12 +72,12 @@ public class AuthenticationController : ControllerBase
     {
         var existing = _context.Members.Where(member => member.UserName == model.UserName);
         if (existing.Count() == 0)
-            return BadRequest();
+            return Unauthorized(new { errors = new List<string> { "User by that username was not found" } });
 
         var user = await existing.FirstAsync();
 
         if (!BCrypt.Net.BCrypt.Verify(model.Password, user.Hash))
-            return BadRequest();
+            return Unauthorized(new { errors = new List<string> { "Incorrect password" } });
 
         var jwt = _jwt.Generate(user.Id, secureMemberKey);
 
@@ -90,12 +99,12 @@ public class AuthenticationController : ControllerBase
     {
         var existing = _context.Users.Where(user => user.UserName == model.UserName);
         if (existing.Count() == 0)
-            return BadRequest();
+            return Unauthorized(new { errors = new List<string> { "User by that username was not found" } });
 
         var user = await existing.FirstAsync();
 
         if (!BCrypt.Net.BCrypt.Verify(model.Password, user.Hash))
-            return BadRequest();
+            return Unauthorized(new { errors = new List<string> { "Incorrect password" } });
 
         var jwt = _jwt.Generate(user.Id, secureUserKey);
 
@@ -114,9 +123,18 @@ public class AuthenticationController : ControllerBase
     [Route("user/register")]
     public async Task<ActionResult<User>> UserRegister([FromBody] UserSignup model)
     {
+        var errors = model.isValid();
+
+        if (errors.Count > 0)
+            return Conflict(new { errors = errors });
+
         var existingUsers = await _context.Users.Where(user => user.UserName == model.UserName).ToListAsync();
         if (existingUsers.Count > 0)
-            return StatusCode(StatusCodes.Status500InternalServerError, "Username taken");
+            return Conflict(new { errors = new List<string> { "Username taken" } });
+
+        existingUsers = await _context.Users.Where(user => user.Email == model.Email).ToListAsync();
+        if (existingUsers.Count > 0)
+            return Conflict(new { errors = new List<string> { "Email taken" } });
 
         var salt = BCrypt.Net.BCrypt.GenerateSalt(13);
         var hash = BCrypt.Net.BCrypt.HashPassword(model.Password, salt);
