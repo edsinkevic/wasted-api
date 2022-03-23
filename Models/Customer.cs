@@ -4,9 +4,9 @@ using System.Text.Json.Serialization;
 
 namespace WastedApi.Models
 {
-    public partial class User
+    public partial class Customer
     {
-        public User()
+        public Customer()
         {
         }
 
@@ -17,6 +17,5 @@ namespace WastedApi.Models
         public string Email { get; set; } = null!;
 
         public string Hash { get; set; } = null!;
-        public string Role { get; set; } = null!;
     }
 }

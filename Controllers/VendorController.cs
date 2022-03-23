@@ -42,4 +42,17 @@ public class VendorController : ControllerBase
 
         return Ok(await _context.Vendors.ToListAsync());
     }
+
+
+    [HttpGet]
+    [Route("{name}")]
+    public async Task<IActionResult> GetByName(string name)
+    {
+        var existing = await _context.Vendors.Where(vendor => vendor.Name == name).ToListAsync();
+
+        if (existing.Count > 0)
+            return Ok(existing.First());
+
+        return Conflict(new { errors = new List<string> { "Vendor not found" } });
+    }
 }

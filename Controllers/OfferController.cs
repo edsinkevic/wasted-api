@@ -41,7 +41,8 @@ public class OfferController : ControllerBase
             Name = request.Name,
             Weight = request.Weight,
             AddedBy = request.AddedBy,
-            Category = request.Category
+            Category = request.Category,
+            Price = request.Price
         };
 
         await _context.Offers.AddAsync(offer);

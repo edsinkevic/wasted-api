@@ -3,15 +3,13 @@ using System.Collections.Generic;
 
 namespace WastedApi.Requests
 {
-    public partial class UserSignup
+    public partial class CustomerSignup
     {
         public string UserName { get; set; } = null!;
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string Password { get; set; } = null!;
-        public string Role { get; set; } = null!;
-
         public List<string> isValid()
         {
             var messages = new List<string>();

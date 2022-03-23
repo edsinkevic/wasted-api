@@ -16,10 +16,8 @@ namespace WastedApi.Models
         public Guid AddedBy { get; set; }
         public string Name { get; set; } = null!;
         public int Weight { get; set; }
-
+        public int Price { get; set; }
         public Category Category { get; set; }
-
-
         public virtual Vendor Vendor { get; set; } = null!;
         public virtual ICollection<OfferEntry> OfferEntries { get; set; }
     }

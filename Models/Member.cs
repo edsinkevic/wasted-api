@@ -12,8 +12,6 @@ namespace WastedApi.Models
         public string LastName { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string Hash { get; set; } = null!;
-        public string Role { get; set; } = null!;
-
         public virtual Vendor Vendor { get; set; } = null!;
     }
 }

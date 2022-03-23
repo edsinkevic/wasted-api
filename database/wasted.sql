@@ -1,14 +1,13 @@
 CREATE TYPE CATEGORY_ENUM AS ENUM ('groceries', 'drinks', 'meat', 'sweets', 'other');
 
-CREATE TABLE users
+CREATE TABLE customers
 (
     id         UUID PRIMARY KEY,
     user_name  VARCHAR NOT NULL UNIQUE,
     first_name VARCHAR NOT NULL,
     last_name  VARCHAR NOT NULL,
     email      VARCHAR NOT NULL UNIQUE,
-    hash       VARCHAR NOT NULL,
-    role       VARCHAR NOT NULL
+    hash       VARCHAR NOT NULL
 );
 
 CREATE TABLE vendors
@@ -25,8 +24,7 @@ CREATE TABLE members
     first_name VARCHAR NOT NULL,
     last_name  VARCHAR NOT NULL,
     email      VARCHAR NOT NULL UNIQUE,
-    hash       VARCHAR NOT NULL,
-    role       VARCHAR NOT NULL
+    hash       VARCHAR NOT NULL
 );
 
 CREATE TABLE offers
@@ -36,6 +34,7 @@ CREATE TABLE offers
     name     VARCHAR       NOT NULL,
     category CATEGORY_ENUM NOT NULL,
     weight   INTEGER       NOT NULL,
+    price    INTEGER       NOT NULL,
     UNIQUE (name, weight)
 );
 

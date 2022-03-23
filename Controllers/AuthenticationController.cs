@@ -29,7 +29,7 @@ public class AuthenticationController : ControllerBase
 
     [HttpPost]
     [Route("member/register")]
-    public async Task<ActionResult<User>> MemberRegister([FromBody] MemberSignup model)
+    public async Task<ActionResult<Customer>> MemberRegister([FromBody] MemberSignup model)
     {
         var errors = model.isValid();
 
@@ -54,7 +54,6 @@ public class AuthenticationController : ControllerBase
             FirstName = model.FirstName,
             LastName = model.LastName,
             Email = model.Email,
-            Role = model.Role,
             Hash = hash,
             VendorId = model.VendorId
         };
@@ -95,7 +94,7 @@ public class AuthenticationController : ControllerBase
 
     [HttpPost]
     [Route("user/login")]
-    public async Task<ActionResult<User>> UserLogin([FromBody] UserLogin model)
+    public async Task<ActionResult<Customer>> UserLogin([FromBody] UserLogin model)
     {
         var existing = _context.Users.Where(user => user.UserName == model.UserName);
         if (existing.Count() == 0)
@@ -121,7 +120,7 @@ public class AuthenticationController : ControllerBase
 
     [HttpPost]
     [Route("user/register")]
-    public async Task<ActionResult<User>> UserRegister([FromBody] UserSignup model)
+    public async Task<ActionResult<Customer>> UserRegister([FromBody] CustomerSignup model)
     {
         var errors = model.isValid();
 
@@ -139,14 +138,13 @@ public class AuthenticationController : ControllerBase
         var salt = BCrypt.Net.BCrypt.GenerateSalt(13);
         var hash = BCrypt.Net.BCrypt.HashPassword(model.Password, salt);
 
-        var user = new User
+        var user = new Customer
         {
             Id = Guid.NewGuid(),
             UserName = model.UserName,
             FirstName = model.FirstName,
             LastName = model.LastName,
             Email = model.Email,
-            Role = model.Role,
             Hash = hash
         };
 
@@ -194,9 +192,12 @@ public class AuthenticationController : ControllerBase
         {
             var token = _jwt.Verify(jwt, secureMemberKey);
             var id = Guid.Parse(token.Issuer);
-            var user = _context.Members.Find(id);
+            var existing = _context.Members.Include(member => member.Vendor).Where(member => member.Id == id).ToList();
 
-            return Ok(user);
+            if (existing.Count == 0)
+                return Unauthorized();
+
+            return Ok(existing[0]);
         }
         catch (Exception)
         {

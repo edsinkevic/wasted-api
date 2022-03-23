@@ -22,7 +22,7 @@ namespace WastedApi.Database
         public virtual DbSet<Member> Members { get; set; } = null!;
         public virtual DbSet<Offer> Offers { get; set; } = null!;
         public virtual DbSet<OfferEntry> OfferEntries { get; set; } = null!;
-        public virtual DbSet<User> Users { get; set; } = null!;
+        public virtual DbSet<Customer> Users { get; set; } = null!;
         public virtual DbSet<Vendor> Vendors { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -68,10 +68,6 @@ namespace WastedApi.Database
                     .HasColumnType("character varying")
                     .HasColumnName("last_name");
 
-                entity.Property(e => e.Role)
-                    .HasColumnType("character varying")
-                    .HasColumnName("role");
-
                 entity.Property(e => e.UserName)
                     .HasColumnType("character varying")
                     .HasColumnName("user_name");
@@ -101,6 +97,7 @@ namespace WastedApi.Database
                     .HasColumnType("character varying")
                     .HasColumnName("name");
 
+                entity.Property(e => e.Price).HasColumnName("price");
                 entity.Property(e => e.Weight).HasColumnName("weight");
                 entity.Property(e => e.Category).HasColumnName("category");
 
@@ -139,14 +136,14 @@ namespace WastedApi.Database
                     .HasConstraintName("offer_entries_offer_id_fkey");
             });
 
-            modelBuilder.Entity<User>(entity =>
+            modelBuilder.Entity<Customer>(entity =>
             {
-                entity.ToTable("users");
+                entity.ToTable("customers");
 
-                entity.HasIndex(e => e.Email, "users_email_key")
+                entity.HasIndex(e => e.Email, "customers_email_key")
                     .IsUnique();
 
-                entity.HasIndex(e => e.UserName, "users_user_name_key")
+                entity.HasIndex(e => e.UserName, "customers_user_name_key")
                     .IsUnique();
 
                 entity.Property(e => e.Id)
@@ -168,10 +165,6 @@ namespace WastedApi.Database
                 entity.Property(e => e.LastName)
                     .HasColumnType("character varying")
                     .HasColumnName("last_name");
-
-                entity.Property(e => e.Role)
-                    .HasColumnType("character varying")
-                    .HasColumnName("role");
 
                 entity.Property(e => e.UserName)
                     .HasColumnType("character varying")
