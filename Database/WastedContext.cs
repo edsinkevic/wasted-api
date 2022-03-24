@@ -119,13 +119,13 @@ namespace WastedApi.Database
                     .HasColumnName("id");
 
                 entity.Property(e => e.Added)
-                    .HasColumnType("timestamp without time zone")
+                    .HasColumnType("date")
                     .HasColumnName("added");
 
                 entity.Property(e => e.Amount).HasColumnName("amount");
 
                 entity.Property(e => e.Expiry)
-                    .HasColumnType("timestamp without time zone")
+                    .HasColumnType("date")
                     .HasColumnName("expiry");
 
                 entity.Property(e => e.OfferId).HasColumnName("offer_id");

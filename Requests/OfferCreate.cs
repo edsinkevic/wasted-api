@@ -12,6 +12,6 @@ namespace WastedApi.Requests
         public Guid AddedBy { get; set; }
         public int Weight { get; set; }
         public Category Category { get; set; }
-        public int Price { get; set; }
+        public double Price { get; set; }
     }
 }

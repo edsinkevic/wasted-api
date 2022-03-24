@@ -28,6 +28,14 @@ public class OfferController : ControllerBase
         return Ok(offers);
     }
 
+    [HttpGet("{name}")]
+    public async Task<ActionResult<IEnumerable<Offer>>> GetByName(string name)
+    {
+        var offers = await _context.Offers.Include(item => item.Vendor).Where(item => item.Vendor.Name == name).ToListAsync();
+
+        return Ok(offers);
+    }
+
     [HttpPost]
     public async Task<ActionResult<Offer>> Post([FromBody] OfferCreate request)
     {

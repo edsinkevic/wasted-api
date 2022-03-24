@@ -92,6 +92,34 @@ public class AuthenticationController : ControllerBase
     }
 
 
+    [HttpGet("member")]
+    public IActionResult GetMember()
+    {
+        var jwt = Request.Cookies["jwt"];
+
+        Console.WriteLine(jwt);
+
+        if (jwt == null)
+            return Unauthorized();
+
+        try
+        {
+            var token = _jwt.Verify(jwt, secureMemberKey);
+            var id = Guid.Parse(token.Issuer);
+            var existing = _context.Members.Include(member => member.Vendor).Where(member => member.Id == id).ToList();
+
+            if (existing.Count == 0)
+                return Unauthorized();
+
+            return Ok(existing[0]);
+        }
+        catch (Exception)
+        {
+            return Unauthorized();
+        }
+    }
+
+
     [HttpPost]
     [Route("user/login")]
     public async Task<ActionResult<Customer>> UserLogin([FromBody] UserLogin model)
@@ -171,33 +199,6 @@ public class AuthenticationController : ControllerBase
             var user = _context.Users.Find(id);
 
             return Ok(user);
-        }
-        catch (Exception)
-        {
-            return Unauthorized();
-        }
-    }
-
-    [HttpGet("member")]
-    public IActionResult GetMember()
-    {
-        var jwt = Request.Cookies["jwt"];
-
-        Console.WriteLine(jwt);
-
-        if (jwt == null)
-            return Unauthorized();
-
-        try
-        {
-            var token = _jwt.Verify(jwt, secureMemberKey);
-            var id = Guid.Parse(token.Issuer);
-            var existing = _context.Members.Include(member => member.Vendor).Where(member => member.Id == id).ToList();
-
-            if (existing.Count == 0)
-                return Unauthorized();
-
-            return Ok(existing[0]);
         }
         catch (Exception)
         {

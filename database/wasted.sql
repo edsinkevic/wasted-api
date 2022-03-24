@@ -34,7 +34,7 @@ CREATE TABLE offers
     name     VARCHAR       NOT NULL,
     category CATEGORY_ENUM NOT NULL,
     weight   INTEGER       NOT NULL,
-    price    INTEGER       NOT NULL,
+    price    REAL       NOT NULL,
     UNIQUE (name, weight)
 );
 
@@ -42,8 +42,8 @@ CREATE TABLE offer_entries
 (
     id       UUID PRIMARY KEY,
     offer_id UUID      NOT NULL REFERENCES offers (id) ON DELETE CASCADE,
-    expiry   TIMESTAMP NOT NULL,
-    added    TIMESTAMP NOT NULL,
+    expiry   DATE NOT NULL,
+    added    DATE NOT NULL,
     amount   INTEGER   NOT NULL,
     UNIQUE (offer_id, expiry)
 );
