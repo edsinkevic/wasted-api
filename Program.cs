@@ -1,5 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Wasted.Interfaces;
+using Wasted.Repositories;
 using WastedApi.Database;
 using WastedApi.Helpers;
 
@@ -18,6 +20,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<WastedContext>();
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<IOfferRepository, OfferRepository>();
+builder.Services.AddScoped<IOfferEntryRepository, OfferEntryRepository>();
+builder.Services.AddScoped<IVendorRepository, VendorRepository>();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
 

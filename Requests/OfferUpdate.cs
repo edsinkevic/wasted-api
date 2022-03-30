@@ -6,10 +6,10 @@ using WastedApi.Models;
 
 namespace WastedApi.Requests
 {
-    public partial class OfferCreate
+    public partial class OfferUpdate
     {
+        public Guid OfferId { get; set; }
         public string Name { get; set; } = null!;
-        public Guid AddedBy { get; set; }
         public int Weight { get; set; }
         public Category Category { get; set; }
         public Single Price { get; set; }

@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Wasted.Interfaces;
+using Wasted.Repositories;
 using WastedApi.Database;
 using WastedApi.Models;
 using WastedApi.Requests;
@@ -12,47 +14,32 @@ public class VendorController : ControllerBase
 {
 
     private readonly ILogger<VendorController> _logger;
-    private readonly WastedContext _context;
+    private readonly IVendorRepository _vendors;
 
-    public VendorController(ILogger<VendorController> logger, WastedContext context)
+    public VendorController(ILogger<VendorController> logger, IVendorRepository vendors)
     {
         _logger = logger;
-        _context = context;
+        _vendors = vendors;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Vendor>>> Get()
     {
-        var vendors = await _context.Vendors.ToListAsync();
-
-        return Ok(vendors);
+        return Ok(await _vendors.Get());
     }
 
     [HttpPost]
     public async Task<ActionResult<IEnumerable<Vendor>>> Post(VendorCreate request)
     {
-        var newVendor = new Vendor
-        {
-            Name = request.Name,
-            Id = Guid.NewGuid()
-        };
-
-        await _context.Vendors.AddAsync(newVendor);
-        await _context.SaveChangesAsync();
-
-        return Ok(await _context.Vendors.ToListAsync());
+        return Ok(await _vendors.Create(request));
     }
-
 
     [HttpGet]
     [Route("{name}")]
     public async Task<IActionResult> GetByName(string name)
     {
-        var existing = await _context.Vendors.Where(vendor => vendor.Name == name).ToListAsync();
-
-        if (existing.Count > 0)
-            return Ok(existing.First());
-
-        return Conflict(new { errors = new List<string> { "Vendor not found" } });
+        return (await _vendors.GetByName(name))
+            .Right<IActionResult>(offer => Ok(offer))
+            .Left(errors => Conflict(new { errors = errors }));
     }
 }

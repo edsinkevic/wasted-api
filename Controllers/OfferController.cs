@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Wasted.Interfaces;
+using Wasted.Repositories;
 using WastedApi.Database;
 using WastedApi.Models;
 using WastedApi.Requests;
@@ -12,50 +14,31 @@ public class OfferController : ControllerBase
 {
 
     private readonly ILogger<OfferController> _logger;
-    private readonly WastedContext _context;
+    private readonly IOfferRepository _offers;
 
-    public OfferController(ILogger<OfferController> logger, WastedContext context)
+    public OfferController(ILogger<OfferController> logger, IOfferRepository offers)
     {
         _logger = logger;
-        _context = context;
+        _offers = offers;
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Offer>>> Get()
-    {
-        var offers = await _context.Offers.ToListAsync();
-
-        return Ok(offers);
-    }
+    public async Task<ActionResult<IEnumerable<Offer>>> Get() =>
+        Ok(await _offers.Get());
 
     [HttpGet("{name}")]
-    public async Task<ActionResult<IEnumerable<Offer>>> GetByName(string name)
-    {
-        var offers = await _context.Offers.Include(item => item.Vendor).Where(item => item.Vendor.Name == name).ToListAsync();
-
-        return Ok(offers);
-    }
+    public async Task<ActionResult<IEnumerable<Offer>>> GetByName(string name) =>
+        Ok(await _offers.GetByVendorName(name));
 
     [HttpPost]
-    public async Task<ActionResult<Offer>> Post([FromBody] OfferCreate request)
-    {
-        var existing = await _context.Offers.Where(offer => offer.Name == request.Name).ToListAsync();
-        if (existing.Count > 0)
-            return BadRequest();
+    public async Task<IActionResult> Post([FromBody] OfferCreate request) =>
+        (await _offers.Create(request))
+            .Right<IActionResult>(offer => Ok(offer))
+            .Left(errors => Conflict(new { errors = errors }));
 
-        var offer = new Offer
-        {
-            Id = Guid.NewGuid(),
-            Name = request.Name,
-            Weight = request.Weight,
-            AddedBy = request.AddedBy,
-            Category = request.Category,
-            Price = request.Price
-        };
-
-        await _context.Offers.AddAsync(offer);
-        await _context.SaveChangesAsync();
-
-        return Ok(offer);
-    }
+    [HttpPut]
+    public async Task<IActionResult> Put([FromBody] OfferUpdate request) =>
+        (await _offers.Update(request))
+            .Right<IActionResult>(offer => Ok(offer))
+            .Left(errors => Conflict(new { errors = errors }));
 }
