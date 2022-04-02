@@ -17,6 +17,7 @@ using Wasted.Tests.Api;
 
 namespace Tests;
 
+[Collection("Database")]
 public class VendorSuite
 {
     private readonly WastedContext _ctx;

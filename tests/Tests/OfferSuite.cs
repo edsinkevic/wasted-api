@@ -8,6 +8,7 @@ using Xunit;
 
 namespace Tests;
 
+[Collection("Database")]
 public class OfferSuite
 {
     private readonly WastedContext _ctx;

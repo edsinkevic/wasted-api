@@ -13,7 +13,7 @@ CREATE TABLE customers
 CREATE TABLE vendors
 (
     id   UUID PRIMARY KEY,
-    name VARCHAR NOT NULL
+    name VARCHAR NOT NULL UNIQUE
 );
 
 CREATE TABLE members
