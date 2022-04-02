@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using WastedApi.Models;
 
-namespace WastedApi
+namespace WastedApi.Models
 {
     public partial class OfferEntry
     {

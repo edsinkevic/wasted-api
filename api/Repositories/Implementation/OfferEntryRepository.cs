@@ -1,5 +1,6 @@
 using LanguageExt;
 using Microsoft.EntityFrameworkCore;
+using Wasted.Database.Interfaces;
 using Wasted.Interfaces;
 using WastedApi;
 using WastedApi.Database;
@@ -11,17 +12,15 @@ namespace Wasted.Repositories;
 
 public class OfferEntryRepository : IOfferEntryRepository
 {
-    private readonly WastedContext _ctx;
+    private readonly IWastedContext _ctx;
 
-    public OfferEntryRepository(WastedContext ctx)
+    public OfferEntryRepository(IWastedContext ctx)
     {
         _ctx = ctx;
     }
 
-    public async Task Clean()
-    {
+    public async Task<int> Clean() =>
         await _ctx.OfferEntries.Where(x => x.Expiry < DateTime.Now).DeleteFromQueryAsync();
-    }
 
     public async Task<Either<List<string>, OfferEntry>> Create(OfferEntryCreate req)
     {
@@ -53,10 +52,8 @@ public class OfferEntryRepository : IOfferEntryRepository
         return item;
     }
 
-    public async Task<IEnumerable<OfferEntry>> Get()
-    {
-        return await _ctx.OfferEntries.Include(item => item.Offer).ThenInclude(offer => offer.Vendor).ToListAsync();
-    }
+    public async Task<IEnumerable<OfferEntry>> Get() =>
+        await _ctx.OfferEntries.Include(item => item.Offer).ThenInclude(offer => offer.Vendor).ToListAsync();
 
     public async Task<Either<List<string>, OfferEntry>> Update(OfferEntryUpdate req)
     {

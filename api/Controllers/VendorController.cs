@@ -23,23 +23,17 @@ public class VendorController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Vendor>>> Get()
-    {
-        return Ok(await _vendors.Get());
-    }
+    public async Task<IActionResult> Get() =>
+        Ok(await _vendors.Get());
 
     [HttpPost]
-    public async Task<ActionResult<IEnumerable<Vendor>>> Post(VendorCreate request)
-    {
-        return Ok(await _vendors.Create(request));
-    }
+    public async Task<IActionResult> Post(VendorCreate request) =>
+        Ok(await _vendors.Create(request));
 
     [HttpGet]
     [Route("{name}")]
-    public async Task<IActionResult> GetByName(string name)
-    {
-        return (await _vendors.GetByName(name))
+    public async Task<IActionResult> GetByName(string name) =>
+        (await _vendors.GetByName(name))
             .Right<IActionResult>(offer => Ok(offer))
             .Left(errors => Conflict(new { errors = errors }));
-    }
 }

@@ -1,5 +1,6 @@
 using LanguageExt;
 using Microsoft.EntityFrameworkCore;
+using Wasted.Database.Interfaces;
 using Wasted.Interfaces;
 using WastedApi.Database;
 using WastedApi.Helpers;
@@ -10,12 +11,12 @@ namespace Wasted.Repositories;
 
 public class MemberRepository : IMemberRepository
 {
-    private readonly WastedContext _context;
+    private readonly IWastedContext _ctx;
     private readonly JwtService _jwt;
 
-    public MemberRepository(WastedContext ctx, JwtService jwt)
+    public MemberRepository(IWastedContext ctx, JwtService jwt)
     {
-        _context = ctx;
+        _ctx = ctx;
         _jwt = jwt;
     }
     public async Task<Either<List<string>, Member>> Create(MemberSignup req)
@@ -25,11 +26,11 @@ public class MemberRepository : IMemberRepository
         if (errors.Count > 0)
             return errors;
 
-        var existing = await _context.Members.Where(user => user.UserName == req.UserName).ToListAsync();
+        var existing = await _ctx.Members.Where(user => user.UserName == req.UserName).ToListAsync();
         if (existing.Count > 0)
             return new List<string> { "Username taken" };
 
-        existing = await _context.Members.Where(user => user.Email == req.Email).ToListAsync();
+        existing = await _ctx.Members.Where(user => user.Email == req.Email).ToListAsync();
         if (existing.Count > 0)
             return new List<string> { "Email taken" };
 
@@ -47,8 +48,8 @@ public class MemberRepository : IMemberRepository
             VendorId = req.VendorId
         };
 
-        await _context.Members.AddAsync(member);
-        await _context.SaveChangesAsync();
+        await _ctx.Members.AddAsync(member);
+        await _ctx.SaveChangesAsync();
 
         return member;
 
@@ -56,7 +57,7 @@ public class MemberRepository : IMemberRepository
 
     public async Task<Either<List<string>, Member>> Get(UserLogin model)
     {
-        var existing = _context.Members.Where(user => user.UserName == model.UserName);
+        var existing = _ctx.Members.Where(user => user.UserName == model.UserName);
         if (existing.Count() == 0)
             return new List<string> { "User by that username was not found" };
 
@@ -70,7 +71,7 @@ public class MemberRepository : IMemberRepository
 
     public async Task<Either<List<string>, Member>> GetById(Guid id)
     {
-        var existing = await _context.Members.Include(x => x.Vendor).Where(x => x.Id == id).ToListAsync();
+        var existing = await _ctx.Members.Include(x => x.Vendor).Where(x => x.Id == id).ToListAsync();
 
         if (existing.Count == 0)
             return new List<string> { "User not found" };
