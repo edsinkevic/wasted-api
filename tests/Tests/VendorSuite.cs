@@ -69,13 +69,13 @@ public class VendorSuite
             .Result.As<OkObjectResult>().Value.As<Vendor>();
 
         Assert.True(getByName.Name == create2.Name);
-
-        _api.Clean();
     }
 
     [Fact]
     public async void IncorrectModel()
     {
+        _api.Clean();
+
         var invalidModel = new VendorCreate
         {
             Name = ""
@@ -86,7 +86,6 @@ public class VendorSuite
 
         Assert.True(post.errors[0] == "Vendor name cannot be empty!");
 
-        _api.Clean();
     }
 
     [Fact]

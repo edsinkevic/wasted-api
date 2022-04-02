@@ -24,14 +24,14 @@ public class OfferEntryController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<OfferEntry>>> Get() =>
+    public async Task<ActionResult<List<OfferEntry>>> Get() =>
         Ok(await _entries.Get());
 
 
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] OfferEntryCreate request) =>
+    public async Task<ActionResult<OfferEntry>> Post([FromBody] OfferEntryCreate request) =>
         (await _entries.Create(request))
-            .Right<IActionResult>(entry => Ok(entry))
+            .Right<ActionResult<OfferEntry>>(entry => Ok(entry))
             .Left(errors => Conflict(new { errors = errors }));
 
     [HttpPut]
