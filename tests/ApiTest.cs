@@ -17,12 +17,12 @@ using Wasted.Tests.Api;
 
 namespace Tests;
 
-public class ApiTests
+public class ApiTest
 {
     private readonly WastedContext _ctx;
     private readonly Api _api;
 
-    public ApiTests()
+    public ApiTest()
     {
         _ctx = new WastedContext();
         _api = new Api(_ctx);
@@ -31,24 +31,19 @@ public class ApiTests
     [Fact]
     public async void VendorTest()
     {
-        var l = new Mock<ILogger<VendorController>>();
-        _ctx.Database.ExecuteSqlRaw("TRUNCATE TABLE VENDORS CASCADE;");
-        var v = new VendorRepository(_ctx);
-        var api = new VendorController(l.Object, v);
-
         var create = new VendorCreate
         {
             Name = "Maxima"
         };
 
-        var post = (await api.Post(create))
+        var post = (await _api.Vendors.Post(create))
             .Result
             .As<OkObjectResult>();
 
         post.StatusCode.Should().Be(200);
 
 
-        var get = (await api.Get())
+        var get = (await _api.Vendors.Get())
             .Result
             .As<OkObjectResult>()
             .Value
