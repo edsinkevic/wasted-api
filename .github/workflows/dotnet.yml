@@ -35,7 +35,7 @@ jobs:
         dotnet-version: 6.0.201
     - name: Create database
       run: |
-        PGPASSWORD=postgres psql -h localhost -p 54323 -U postgres -f ./api/database/wasted.sql
+        PGPASSWORD=postgres psql -h localhost -p 54323 -U postgres -d wasted -f ./api/database/wasted.sql
     - name: Go to tests folder
       run: cd tests
     - name: Restore dependencies
