@@ -16,6 +16,7 @@ public partial class WastedContext : DbContext, IWastedContext
 {
     public WastedContext()
     {
+        NpgsqlConnection.GlobalTypeMapper.MapEnum<Category>("category_enum");
     }
 
     public WastedContext(DbContextOptions<WastedContext> options)
