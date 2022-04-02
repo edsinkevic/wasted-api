@@ -12,12 +12,10 @@ namespace Wasted.Repositories;
 public class CustomerRepository : ICustomerRepository
 {
     private readonly IWastedContext _context;
-    private readonly JwtService _jwt;
 
-    public CustomerRepository(IWastedContext ctx, JwtService jwt)
+    public CustomerRepository(IWastedContext ctx)
     {
         _context = ctx;
-        _jwt = jwt;
     }
     public async Task<Either<List<string>, Customer>> Create(CustomerSignup req)
     {

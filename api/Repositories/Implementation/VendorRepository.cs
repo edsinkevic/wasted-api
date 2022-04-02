@@ -31,10 +31,8 @@ public class VendorRepository : IVendorRepository
         return newVendor;
     }
 
-    public async Task<IEnumerable<Vendor>> Get()
-    {
-        return await _ctx.Vendors.ToListAsync();
-    }
+    public async Task<IEnumerable<Vendor>> Get() =>
+        await _ctx.Vendors.ToListAsync();
 
     public async Task<Either<List<string>, Vendor>> GetByName(string name)
     {

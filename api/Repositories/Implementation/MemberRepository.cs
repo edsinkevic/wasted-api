@@ -12,12 +12,9 @@ namespace Wasted.Repositories;
 public class MemberRepository : IMemberRepository
 {
     private readonly IWastedContext _ctx;
-    private readonly JwtService _jwt;
-
-    public MemberRepository(IWastedContext ctx, JwtService jwt)
+    public MemberRepository(IWastedContext ctx)
     {
         _ctx = ctx;
-        _jwt = jwt;
     }
     public async Task<Either<List<string>, Member>> Create(MemberSignup req)
     {

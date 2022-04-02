@@ -17,15 +17,15 @@ public class AuthenticationController : ControllerBase
 {
     private string secureMemberKey = "very secure member lmao";
     private string secureUserKey = "very secure user lmao";
+    private readonly ILogger<AuthenticationController> _logger;
     private readonly JwtService _jwt;
-    private readonly IConfiguration _configuration;
     private readonly IMemberRepository _members;
     private readonly ICustomerRepository _customers;
 
-    public AuthenticationController(JwtService jwt, IConfiguration configuration, IMemberRepository members, ICustomerRepository customers)
+    public AuthenticationController(ILogger<AuthenticationController> logger, JwtService jwt, IMemberRepository members, ICustomerRepository customers)
     {
+        _logger = logger;
         _jwt = jwt;
-        _configuration = configuration;
         _members = members;
         _customers = customers;
     }

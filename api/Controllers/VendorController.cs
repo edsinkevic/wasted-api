@@ -23,11 +23,11 @@ public class VendorController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get() =>
+    public async Task<ActionResult<List<Vendor>>> Get() =>
         Ok(await _vendors.Get());
 
     [HttpPost]
-    public async Task<IActionResult> Post(VendorCreate request) =>
+    public async Task<ActionResult<Vendor>> Post(VendorCreate request) =>
         Ok(await _vendors.Create(request));
 
     [HttpGet]
