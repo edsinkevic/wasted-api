@@ -32,8 +32,8 @@ public class VendorController : ControllerBase
 
     [HttpGet]
     [Route("{name}")]
-    public async Task<IActionResult> GetByName(string name) =>
+    public async Task<ActionResult<Vendor>> GetByName(string name) =>
         (await _vendors.GetByName(name))
-            .Right<IActionResult>(offer => Ok(offer))
+            .Right<ActionResult<Vendor>>(vendor => Ok(vendor))
             .Left(errors => Conflict(new { errors = errors }));
 }

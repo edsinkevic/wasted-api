@@ -1,0 +1,46 @@
+name: .NET
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: wasted
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 54323:5432
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.201
+    - name: Create database
+      run: |
+        PGPASSWORD=postgres psql -h localhost -p 54323 -U postgres -f ./api/database/wasted.sql
+    - name: Go to tests folder
+      run: cd tests
+    - name: Restore dependencies
+      run: dotnet restore tests/Tests.csproj
+    - name: Build
+      run: dotnet build --no-restore tests/Tests.csproj
+    - name: Test
+      run: dotnet test --no-build --verbosity normal tests/Tests.csproj

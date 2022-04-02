@@ -29,27 +29,57 @@ public class ApiTest
     }
 
     [Fact]
-    public async void VendorTest()
+    public async void HappyPath()
     {
-        var create = new VendorCreate
+        var create1 = new VendorCreate
         {
             Name = "Maxima"
         };
 
-        var post = (await _api.Vendors.Post(create))
+        var create2 = new VendorCreate
+        {
+            Name = "Iki"
+        };
+
+        var post1 = (await _api.Vendors.Post(create1))
             .Result
             .As<OkObjectResult>();
 
-        post.StatusCode.Should().Be(200);
+        post1.StatusCode.Should().Be(200);
 
 
-        var get = (await _api.Vendors.Get())
+        var get1 = (await _api.Vendors.Get())
             .Result
             .As<OkObjectResult>()
             .Value
             .As<List<Vendor>>();
 
-        get.Should().AllSatisfy(vendor => vendor.Name.Should().Be("Maxima"));
-        get.Should().HaveCount(1);
+        get1.Should().AllSatisfy(vendor => vendor.Name.Should().Be("Maxima"));
+        get1.Should().HaveCount(1);
+
+
+        var post2 = (await _api.Vendors.Post(create2))
+            .Result
+            .As<OkObjectResult>();
+
+        post2.StatusCode.Should().Be(200);
+
+        var get2 = (await _api.Vendors.Get())
+            .Result
+            .As<OkObjectResult>()
+            .Value
+            .As<List<Vendor>>();
+
+        get2.Should().HaveCount(2);
+
+        var getByName = (await _api.Vendors.GetByName("Iki"))
+            .Result
+            .As<OkObjectResult>()
+            .Value
+            .As<Vendor>();
+
+        Assert.True(getByName.Name == create2.Name);
+
+        _api.Clean();
     }
 }
