@@ -23,6 +23,10 @@ public class VendorRepository : IVendorRepository
         if (errors.Count > 0)
             return errors;
 
+        var existing = await _ctx.Vendors.Where(vendor => vendor.Name == req.Name).ToListAsync();
+        if (existing.Count > 0)
+            return new List<string> { "Vendor by that name already exists" };
+
         var newVendor = new Vendor
         {
             Name = req.Name,

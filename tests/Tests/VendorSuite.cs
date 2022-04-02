@@ -17,12 +17,12 @@ using Wasted.Tests.Api;
 
 namespace Tests;
 
-public class ApiTest
+public class VendorSuite
 {
     private readonly WastedContext _ctx;
     private readonly Api _api;
 
-    public ApiTest()
+    public VendorSuite()
     {
         _ctx = new WastedContext();
         _api = new Api(_ctx);
@@ -31,6 +31,8 @@ public class ApiTest
     [Fact]
     public async void HappyPath()
     {
+        _api.Clean();
+
         var create1 = new VendorCreate
         {
             Name = "Maxima"
@@ -42,41 +44,28 @@ public class ApiTest
         };
 
         var post1 = (await _api.Vendors.Post(create1))
-            .Result
-            .As<OkObjectResult>();
+            .Result.As<OkObjectResult>();
 
         post1.StatusCode.Should().Be(200);
 
-
         var get1 = (await _api.Vendors.Get())
-            .Result
-            .As<OkObjectResult>()
-            .Value
-            .As<List<Vendor>>();
+            .Result.As<OkObjectResult>().Value.As<List<Vendor>>();
 
         get1.Should().AllSatisfy(vendor => vendor.Name.Should().Be("Maxima"));
         get1.Should().HaveCount(1);
 
-
         var post2 = (await _api.Vendors.Post(create2))
-            .Result
-            .As<OkObjectResult>();
+            .Result.As<OkObjectResult>();
 
         post2.StatusCode.Should().Be(200);
 
         var get2 = (await _api.Vendors.Get())
-            .Result
-            .As<OkObjectResult>()
-            .Value
-            .As<List<Vendor>>();
+            .Result.As<OkObjectResult>().Value.As<List<Vendor>>();
 
         get2.Should().HaveCount(2);
 
         var getByName = (await _api.Vendors.GetByName("Iki"))
-            .Result
-            .As<OkObjectResult>()
-            .Value
-            .As<Vendor>();
+            .Result.As<OkObjectResult>().Value.As<Vendor>();
 
         Assert.True(getByName.Name == create2.Name);
 
@@ -92,10 +81,7 @@ public class ApiTest
         };
 
         var post = (await _api.Vendors.Post(invalidModel))
-            .Result
-            .As<ConflictObjectResult>()
-            .Value
-            .As<ErrorResponse>();
+            .Result.As<ConflictObjectResult>().Value.As<ErrorResponse>();
 
         Assert.True(post.errors[0] == "Vendor name cannot be empty!");
 
@@ -105,15 +91,13 @@ public class ApiTest
     [Fact]
     public async void VendorDoesntExist()
     {
+        _api.Clean();
+
         var get = (await _api.Vendors.GetByName("Maxima"))
-            .Result
-            .As<ConflictObjectResult>()
-            .Value
-            .As<ErrorResponse>();
+            .Result.As<ConflictObjectResult>().Value.As<ErrorResponse>();
 
         Assert.True(get.errors[0] == "Vendor not found");
 
-        _api.Clean();
     }
 
 }
