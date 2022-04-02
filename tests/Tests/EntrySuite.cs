@@ -27,6 +27,7 @@ public class EntrySuite
     {
         _api.Clean();
 
+
         var vendorCreate = new VendorCreate { Name = "Maxima" };
         var postVendor = (await _api.Vendors.Post(vendorCreate))
             .Result.As<OkObjectResult>().Value.As<Vendor>();
@@ -69,6 +70,45 @@ public class EntrySuite
         get2.Should().HaveCount(1);
 
         Assert.True(postEntry2.OfferId == postOffer.Id && postEntry2.Amount == entryCreate.Amount * 2);
+
+        var updateRequest = new OfferEntryUpdate
+        {
+            OfferEntryId = postEntry1.Id,
+            Amount = 70,
+            Expiry = postEntry1.Expiry
+        };
+
+        var put = (await _api.OfferEntries.Put(updateRequest))
+            .Result.As<OkObjectResult>().Value.As<OfferEntry>();
+        var get3 = (await _api.OfferEntries.Get())
+            .Result.As<OkObjectResult>().Value.As<List<OfferEntry>>();
+
+        Assert.True(get3[0].Amount == updateRequest.Amount && get3[0].Id == postEntry1.Id);
+
+        var entryCreate2 = new OfferEntryCreate
+        {
+            Expiry = DateTime.Now.AddDays(-3),
+            OfferId = postOffer.Id,
+            Amount = 50
+        };
+
+        var postEntry3 = (await _api.OfferEntries.Post(entryCreate2))
+            .Result.As<OkObjectResult>().Value.As<OfferEntry>();
+
+        var get4 = (await _api.OfferEntries.Get())
+            .Result.As<OkObjectResult>().Value.As<List<OfferEntry>>();
+
+        get4.Should().HaveCount(2);
+
+        var clean = (await _api.OfferEntries.Clean())
+            .Result.As<OkObjectResult>().Value.As<CleanResult>();
+
+        clean.CleanedAmount.Should().Be(1);
+
+        var get5 = (await _api.OfferEntries.Get())
+            .Result.As<OkObjectResult>().Value.As<List<OfferEntry>>();
+
+        get5.Should().HaveCount(1);
     }
 
 

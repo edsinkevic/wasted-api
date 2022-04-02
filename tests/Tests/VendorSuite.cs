@@ -84,7 +84,7 @@ public class VendorSuite
         var post = (await _api.Vendors.Post(invalidModel))
             .Result.As<ConflictObjectResult>().Value.As<ErrorResponse>();
 
-        Assert.True(post.errors[0] == "Vendor name cannot be empty!");
+        Assert.True(post.Errors[0] == "Vendor name cannot be empty!");
 
     }
 
@@ -96,7 +96,7 @@ public class VendorSuite
         var get = (await _api.Vendors.GetByName("Maxima"))
             .Result.As<ConflictObjectResult>().Value.As<ErrorResponse>();
 
-        Assert.True(get.errors[0] == "Vendor not found");
+        Assert.True(get.Errors[0] == "Vendor not found");
 
     }
 
