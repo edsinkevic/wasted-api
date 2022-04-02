@@ -22,7 +22,7 @@ namespace WastedApi.Database
         public virtual DbSet<Member> Members { get; set; } = null!;
         public virtual DbSet<Offer> Offers { get; set; } = null!;
         public virtual DbSet<OfferEntry> OfferEntries { get; set; } = null!;
-        public virtual DbSet<Customer> Users { get; set; } = null!;
+        public virtual DbSet<Customer> Customers { get; set; } = null!;
         public virtual DbSet<Vendor> Vendors { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

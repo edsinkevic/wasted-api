@@ -21,6 +21,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<WastedContext>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IOfferRepository, OfferRepository>();
+builder.Services.AddScoped<IMemberRepository, MemberRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IOfferEntryRepository, OfferEntryRepository>();
 builder.Services.AddScoped<IVendorRepository, VendorRepository>();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);

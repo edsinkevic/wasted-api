@@ -7,6 +7,7 @@ using WastedApi.Requests;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using WastedApi.Helpers;
+using Wasted.Interfaces;
 
 namespace WastedApi.Controllers;
 
@@ -16,84 +17,51 @@ public class AuthenticationController : ControllerBase
 {
     private string secureMemberKey = "very secure member lmao";
     private string secureUserKey = "very secure user lmao";
-    private readonly WastedContext _context;
     private readonly JwtService _jwt;
     private readonly IConfiguration _configuration;
+    private readonly IMemberRepository _members;
+    private readonly ICustomerRepository _customers;
 
-    public AuthenticationController(WastedContext context, JwtService jwt, IConfiguration configuration)
+    public AuthenticationController(JwtService jwt, IConfiguration configuration, IMemberRepository members, ICustomerRepository customers)
     {
-        _context = context;
         _jwt = jwt;
         _configuration = configuration;
+        _members = members;
+        _customers = customers;
     }
 
     [HttpPost]
     [Route("member/register")]
-    public async Task<ActionResult<Customer>> MemberRegister([FromBody] MemberSignup model)
-    {
-        var errors = model.isValid();
-
-        if (errors.Count > 0)
-            return Conflict(new { errors = errors });
-
-        var existing = await _context.Members.Where(user => user.UserName == model.UserName).ToListAsync();
-        if (existing.Count > 0)
-            return Conflict(new { errors = new List<string> { "Username taken" } });
-
-        existing = await _context.Members.Where(user => user.Email == model.Email).ToListAsync();
-        if (existing.Count > 0)
-            return Conflict(new { errors = new List<string> { "Email taken" } });
-
-        var salt = BCrypt.Net.BCrypt.GenerateSalt(13);
-        var hash = BCrypt.Net.BCrypt.HashPassword(model.Password, salt);
-
-        var user = new Member
-        {
-            Id = Guid.NewGuid(),
-            UserName = model.UserName,
-            FirstName = model.FirstName,
-            LastName = model.LastName,
-            Email = model.Email,
-            Hash = hash,
-            VendorId = model.VendorId
-        };
-
-        await _context.Members.AddAsync(user);
-        await _context.SaveChangesAsync();
-
-        return Ok(user);
-    }
+    public async Task<IActionResult> MemberRegister([FromBody] MemberSignup model) =>
+        (await _members.Create(model))
+            .Right<IActionResult>(member => Ok(member))
+            .Left(errors => Conflict(new { errors = errors }));
 
 
     [HttpPost]
     [Route("member/login")]
-    public async Task<IActionResult> MemberLogin([FromBody] UserLogin model)
-    {
-        var existing = _context.Members.Where(member => member.UserName == model.UserName);
-        if (existing.Count() == 0)
-            return Unauthorized(new { errors = new List<string> { "User by that username was not found" } });
+    public async Task<IActionResult> MemberLogin([FromBody] UserLogin model) =>
+        (await _members.Get(model)).Right<IActionResult>(member =>
+            {
+                var jwt = _jwt.Generate(member.Id, secureMemberKey);
 
-        var user = await existing.FirstAsync();
+                Response.Cookies.Append("jwt", jwt, new CookieOptions
+                {
+                    HttpOnly = true
+                });
 
-        if (!BCrypt.Net.BCrypt.Verify(model.Password, user.Hash))
-            return Unauthorized(new { errors = new List<string> { "Incorrect password" } });
+                return Ok(new
+                {
+                    message = "success"
+                });
 
-        var jwt = _jwt.Generate(user.Id, secureMemberKey);
+            })
+                .Left(errors => Unauthorized(new { errors = errors }));
 
-        Response.Cookies.Append("jwt", jwt, new CookieOptions
-        {
-            HttpOnly = true
-        });
-
-        return Ok(new
-        {
-            message = "success"
-        });
-    }
 
 
     [HttpGet("member")]
-    public IActionResult GetMember()
+    public async Task<IActionResult> GetMember()
     {
         var jwt = Request.Cookies["jwt"];
 
@@ -106,12 +74,11 @@ public class AuthenticationController : ControllerBase
         {
             var token = _jwt.Verify(jwt, secureMemberKey);
             var id = Guid.Parse(token.Issuer);
-            var existing = _context.Members.Include(member => member.Vendor).Where(member => member.Id == id).ToList();
 
-            if (existing.Count == 0)
-                return Unauthorized();
-
-            return Ok(existing[0]);
+            var result = await _members.GetById(id);
+            return result
+                .Right<IActionResult>(member => Ok(member))
+                .Left(errors => Unauthorized(new { errors = errors }));
         }
         catch (Exception)
         {
@@ -122,68 +89,37 @@ public class AuthenticationController : ControllerBase
 
     [HttpPost]
     [Route("user/login")]
-    public async Task<ActionResult<Customer>> UserLogin([FromBody] UserLogin model)
+    public async Task<IActionResult> UserLogin([FromBody] UserLogin model)
     {
-        var existing = _context.Users.Where(user => user.UserName == model.UserName);
-        if (existing.Count() == 0)
-            return Unauthorized(new { errors = new List<string> { "User by that username was not found" } });
+        var result = await _customers.Get(model);
 
-        var user = await existing.FirstAsync();
-
-        if (!BCrypt.Net.BCrypt.Verify(model.Password, user.Hash))
-            return Unauthorized(new { errors = new List<string> { "Incorrect password" } });
-
-        var jwt = _jwt.Generate(user.Id, secureUserKey);
-
-        Response.Cookies.Append("jwt", jwt, new CookieOptions
+        return result.Right<IActionResult>(member =>
         {
-            HttpOnly = true
-        });
+            var jwt = _jwt.Generate(member.Id, secureUserKey);
 
-        return Ok(new
-        {
-            message = "success"
-        });
+            Response.Cookies.Append("jwt", jwt, new CookieOptions
+            {
+                HttpOnly = true
+            });
+
+            return Ok(new
+            {
+                message = "success"
+            });
+
+        })
+            .Left(errors => Unauthorized(new { errors = errors }));
     }
 
     [HttpPost]
     [Route("user/register")]
-    public async Task<ActionResult<Customer>> UserRegister([FromBody] CustomerSignup model)
-    {
-        var errors = model.isValid();
-
-        if (errors.Count > 0)
-            return Conflict(new { errors = errors });
-
-        var existingUsers = await _context.Users.Where(user => user.UserName == model.UserName).ToListAsync();
-        if (existingUsers.Count > 0)
-            return Conflict(new { errors = new List<string> { "Username taken" } });
-
-        existingUsers = await _context.Users.Where(user => user.Email == model.Email).ToListAsync();
-        if (existingUsers.Count > 0)
-            return Conflict(new { errors = new List<string> { "Email taken" } });
-
-        var salt = BCrypt.Net.BCrypt.GenerateSalt(13);
-        var hash = BCrypt.Net.BCrypt.HashPassword(model.Password, salt);
-
-        var user = new Customer
-        {
-            Id = Guid.NewGuid(),
-            UserName = model.UserName,
-            FirstName = model.FirstName,
-            LastName = model.LastName,
-            Email = model.Email,
-            Hash = hash
-        };
-
-        await _context.Users.AddAsync(user);
-        await _context.SaveChangesAsync();
-
-        return Ok(user);
-    }
+    public async Task<IActionResult> UserRegister([FromBody] CustomerSignup model) =>
+        (await _customers.Create(model))
+            .Right<IActionResult>(member => Ok(member))
+            .Left(errors => Conflict(new { errors = errors }));
 
     [HttpGet("user")]
-    public IActionResult GetUser()
+    public async Task<IActionResult> GetUser()
     {
         var jwt = Request.Cookies["jwt"];
 
@@ -196,9 +132,10 @@ public class AuthenticationController : ControllerBase
         {
             var token = _jwt.Verify(jwt, secureUserKey);
             var id = Guid.Parse(token.Issuer);
-            var user = _context.Users.Find(id);
-
-            return Ok(user);
+            var result = await _customers.GetById(id);
+            return result
+                .Right<IActionResult>(customer => Ok(customer))
+                .Left(errors => Unauthorized(new { errors = errors }));
         }
         catch (Exception)
         {
