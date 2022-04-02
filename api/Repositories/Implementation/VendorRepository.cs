@@ -17,8 +17,12 @@ public class VendorRepository : IVendorRepository
     {
         _ctx = ctx;
     }
-    public async Task<Vendor> Create(VendorCreate req)
+    public async Task<Either<List<string>, Vendor>> Create(VendorCreate req)
     {
+        var errors = req.isValid();
+        if (errors.Count > 0)
+            return errors;
+
         var newVendor = new Vendor
         {
             Name = req.Name,

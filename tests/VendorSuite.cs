@@ -82,4 +82,38 @@ public class ApiTest
 
         _api.Clean();
     }
+
+    [Fact]
+    public async void IncorrectModel()
+    {
+        var invalidModel = new VendorCreate
+        {
+            Name = ""
+        };
+
+        var post = (await _api.Vendors.Post(invalidModel))
+            .Result
+            .As<ConflictObjectResult>()
+            .Value
+            .As<ErrorResponse>();
+
+        Assert.True(post.errors[0] == "Vendor name cannot be empty!");
+
+        _api.Clean();
+    }
+
+    [Fact]
+    public async void VendorDoesntExist()
+    {
+        var get = (await _api.Vendors.GetByName("Maxima"))
+            .Result
+            .As<ConflictObjectResult>()
+            .Value
+            .As<ErrorResponse>();
+
+        Assert.True(get.errors[0] == "Vendor not found");
+
+        _api.Clean();
+    }
+
 }

@@ -28,12 +28,14 @@ public class VendorController : ControllerBase
 
     [HttpPost]
     public async Task<ActionResult<Vendor>> Post(VendorCreate request) =>
-        Ok(await _vendors.Create(request));
+        (await _vendors.Create(request))
+            .Right<ActionResult<Vendor>>(vendor => Ok(vendor))
+            .Left(errors => Conflict(new ErrorResponse { errors = errors }));
 
     [HttpGet]
     [Route("{name}")]
     public async Task<ActionResult<Vendor>> GetByName(string name) =>
         (await _vendors.GetByName(name))
             .Right<ActionResult<Vendor>>(vendor => Ok(vendor))
-            .Left(errors => Conflict(new { errors = errors }));
+            .Left(errors => Conflict(new ErrorResponse{ errors = errors }));
 }

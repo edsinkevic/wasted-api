@@ -9,5 +9,5 @@ public interface IVendorRepository
 {
     public Task<IEnumerable<Vendor>> Get();
     public Task<Either<List<string>, Vendor>> GetByName(string name);
-    public Task<Vendor> Create(VendorCreate req);
+    public Task<Either<List<string>, Vendor>> Create(VendorCreate req);
 }
