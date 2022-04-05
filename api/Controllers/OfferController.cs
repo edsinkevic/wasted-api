@@ -31,9 +31,9 @@ public class OfferController : ControllerBase
         Ok(await _offers.GetByVendorName(name));
 
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] OfferCreate request) =>
+    public async Task<ActionResult<Offer>> Post([FromBody] OfferCreate request) =>
         (await _offers.Create(request))
-            .Right<IActionResult>(offer => Ok(offer))
+            .Right<ActionResult<Offer>>(offer => Ok(offer))
             .Left(errors => Conflict(new { errors = errors }));
 
     [HttpPut]

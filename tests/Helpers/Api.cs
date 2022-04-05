@@ -12,7 +12,7 @@ public class Api
 {
     private readonly WastedContext _ctx;
     private readonly JwtService _jwt;
-    public readonly VendorRepository _vendors;
+    private readonly VendorRepository _vendors;
     private readonly OfferRepository _offers;
     private readonly OfferEntryRepository _entries;
     private readonly CustomerRepository _customers;
@@ -25,9 +25,9 @@ public class Api
 
     public void Clean()
     {
-        _ctx.Database.ExecuteSqlRaw("TRUNCATE TABLE vendors CASCADE;");
-        _ctx.Database.ExecuteSqlRaw("TRUNCATE TABLE offers CASCADE ;");
         _ctx.Database.ExecuteSqlRaw("TRUNCATE TABLE offer_entries CASCADE ;");
+        _ctx.Database.ExecuteSqlRaw("TRUNCATE TABLE offers CASCADE ;");
+        _ctx.Database.ExecuteSqlRaw("TRUNCATE TABLE vendors CASCADE;");
         _ctx.Database.ExecuteSqlRaw("TRUNCATE TABLE customers CASCADE ;");
         _ctx.Database.ExecuteSqlRaw("TRUNCATE TABLE members CASCADE ;");
     }

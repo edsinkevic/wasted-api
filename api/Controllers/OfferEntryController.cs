@@ -1,3 +1,4 @@
+using LanguageExt;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Wasted.Interfaces;
@@ -24,27 +25,23 @@ public class OfferEntryController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<OfferEntry>>> Get() =>
+    public async Task<ActionResult<List<OfferEntry>>> Get() =>
         Ok(await _entries.Get());
 
 
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] OfferEntryCreate request) =>
+    public async Task<ActionResult<OfferEntry>> Post([FromBody] OfferEntryCreate request) =>
         (await _entries.Create(request))
-            .Right<IActionResult>(entry => Ok(entry))
-            .Left(errors => Conflict(new { errors = errors }));
+            .Right<ActionResult<OfferEntry>>(entry => Ok(entry))
+            .Left(errors => Conflict(new ErrorResponse { Errors = errors }));
 
     [HttpPut]
-    public async Task<IActionResult> Put([FromBody] OfferEntryUpdate request) =>
+    public async Task<ActionResult<OfferEntry>> Put([FromBody] OfferEntryUpdate request) =>
         (await _entries.Update(request))
-            .Right<IActionResult>(entry => Ok(entry))
-            .Left(errors => Conflict(new { errors = errors }));
+            .Right<ActionResult<OfferEntry>>(entry => Ok(entry))
+            .Left(errors => Conflict(new ErrorResponse { Errors = errors }));
 
     [HttpPost("clean")]
-    public async Task<IActionResult> Clean()
-    {
-        await _entries.Clean();
-        return Ok();
-    }
-
+    public async Task<ActionResult<CleanResult>> Clean() =>
+        await _entries.Clean().Map(amount => Ok(new CleanResult { CleanedAmount = amount }));
 }
