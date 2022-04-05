@@ -47,3 +47,20 @@ CREATE TABLE offer_entries
     amount   INTEGER   NOT NULL,
     UNIQUE (offer_id, expiry)
 );
+
+CREATE TABLE reservations
+(
+    id           UUID PRIMARY KEY,
+    customer_id UUID NOT NULL REFERENCES customers (id) ON DELETE CASCADE,
+    created_date DATE NOT NULL,
+    expiration_date       INTEGER   NOT NULL,
+    code VARCHAR NOT NULL
+);
+
+CREATE TABLE reservation_items
+(
+    id UUID PRIMARY KEY,
+    reservation_id UUID NOT NULL REFERENCES reservations (id) ON DELETE CASCADE,
+    entry_id UUID NOT NULL REFERENCES offer_entries (id) ON DELETE CASCADE,
+    amount INTEGER NOT NULL
+);
