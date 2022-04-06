@@ -13,4 +13,10 @@ public static class Extensions
         return NewDT;
     }
 
+    public static DateTime ToUtc(this DateTime date)
+    {
+        var NewDT = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Millisecond, DateTimeKind.Utc);
+        return NewDT;
+    }
+
 }

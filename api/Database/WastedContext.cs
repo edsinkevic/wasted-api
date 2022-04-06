@@ -11,13 +11,20 @@ public partial class WastedContext : DbContext, IWastedContext
 {
     public WastedContext()
     {
+        NpgsqlConnection.GlobalTypeMapper.MapEnum<Category>("category_enum");
+        NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
+        _port = 54323;
     }
 
     public WastedContext(DbContextOptions<WastedContext> options)
         : base(options)
     {
         NpgsqlConnection.GlobalTypeMapper.MapEnum<Category>("category_enum");
+        NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
+        _port = 54321;
     }
+
+    public int _port;
 
     public virtual DbSet<Customer> Customers { get; set; } = null!;
     public virtual DbSet<Member> Members { get; set; } = null!;
@@ -32,7 +39,8 @@ public partial class WastedContext : DbContext, IWastedContext
         if (!optionsBuilder.IsConfigured)
         {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-            optionsBuilder.UseNpgsql("Host=localhost:54321;Database=Wasted;Username=postgres;Password=postgres");
+            optionsBuilder.UseNpgsql($"Host=localhost:{_port};Database=wasted;Username=postgres;Password=postgres");
+            //AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
     }
 
@@ -136,6 +144,8 @@ public partial class WastedContext : DbContext, IWastedContext
 
             entity.Property(e => e.Price).HasColumnName("price");
 
+            entity.Property(e => e.Category).HasColumnName("category");
+
             entity.Property(e => e.Weight).HasColumnName("weight");
 
             entity.HasOne(d => d.Vendor)
@@ -208,14 +218,14 @@ public partial class WastedContext : DbContext, IWastedContext
             entity.Property(e => e.ReservationId).HasColumnName("reservation_id");
 
             entity.HasOne(d => d.Entry)
-                .WithMany(p => p.ReservationItems)
-                .HasForeignKey(d => d.EntryId)
-                .HasConstraintName("reservation_items_entry_id_fkey");
+                        .WithMany(p => p.ReservationItems)
+                        .HasForeignKey(d => d.EntryId)
+                        .HasConstraintName("reservation_items_entry_id_fkey");
 
             entity.HasOne(d => d.Reservation)
-                .WithMany(p => p.ReservationItems)
-                .HasForeignKey(d => d.ReservationId)
-                .HasConstraintName("reservation_items_reservation_id_fkey");
+                        .WithMany(p => p.ReservationItems)
+                        .HasForeignKey(d => d.ReservationId)
+                        .HasConstraintName("reservation_items_reservation_id_fkey");
         });
 
         modelBuilder.Entity<Vendor>(entity =>
@@ -226,12 +236,12 @@ public partial class WastedContext : DbContext, IWastedContext
                 .IsUnique();
 
             entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
+                            .ValueGeneratedNever()
+                            .HasColumnName("id");
 
             entity.Property(e => e.Name)
-                .HasColumnType("character varying")
-                .HasColumnName("name");
+                            .HasColumnType("character varying")
+                            .HasColumnName("name");
         });
 
         OnModelCreatingPartial(modelBuilder);

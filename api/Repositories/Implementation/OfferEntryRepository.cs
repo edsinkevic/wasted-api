@@ -20,7 +20,7 @@ public class OfferEntryRepository : IOfferEntryRepository
     }
 
     public async Task<int> Clean() =>
-        await _ctx.OfferEntries.Where(x => x.Expiry < DateTime.Now).DeleteFromQueryAsync();
+        await _ctx.OfferEntries.Where(x => x.Expiry.ToDateTime(TimeOnly.MinValue) < DateTime.Now).DeleteFromQueryAsync();
 
     public async Task<Either<List<string>, OfferEntry>> Create(OfferEntryCreate req)
     {
@@ -42,8 +42,8 @@ public class OfferEntryRepository : IOfferEntryRepository
         {
             Amount = req.Amount,
             OfferId = req.OfferId,
-            Added = DateTime.Now.ToUnspecified(),
-            Expiry = req.Expiry.ToUnspecified(),
+            Added = DateOnly.FromDateTime(DateTime.Now),
+            Expiry = req.Expiry,
             Id = Guid.NewGuid()
         };
 

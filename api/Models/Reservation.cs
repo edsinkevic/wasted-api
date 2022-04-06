@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using NodaTime;
 using WastedApi.Models;
 
-namespace WastedApi;
+namespace WastedApi.Models;
 public partial class Reservation
 {
     public Reservation()
@@ -12,8 +13,8 @@ public partial class Reservation
 
     public Guid Id { get; set; }
     public Guid CustomerId { get; set; }
-    public DateOnly CreatedDate { get; set; }
-    public int ExpirationDate { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public DateTime ExpirationDate { get; set; }
     public string Code { get; set; } = null!;
 
     public virtual Customer Customer { get; set; } = null!;

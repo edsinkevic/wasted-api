@@ -1,11 +1,10 @@
 using Microsoft.Extensions.Logging;
 using Moq;
-using Wasted.Database.Interfaces;
 using Wasted.Repositories;
 using WastedApi.Controllers;
 using WastedApi.Helpers;
 using Microsoft.EntityFrameworkCore;
-using Wasted.Tests.Mocks;
+using WastedApi.Database;
 
 namespace Wasted.Tests.Api;
 public class Api

@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Wasted.Tests.Api;
-using Wasted.Tests.Mocks;
+using WastedApi.Database;
 using WastedApi.Models;
 using WastedApi.Requests;
 using Xunit;

@@ -52,8 +52,8 @@ CREATE TABLE reservations
 (
     id           UUID PRIMARY KEY,
     customer_id UUID NOT NULL REFERENCES customers (id) ON DELETE CASCADE,
-    created_date DATE NOT NULL,
-    expiration_date       INTEGER   NOT NULL,
+    created_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    expiration_date    TIMESTAMP WITH TIME ZONE      NOT NULL,
     code VARCHAR NOT NULL
 );
 

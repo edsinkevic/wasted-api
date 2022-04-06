@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Wasted.Interfaces;
 using Wasted.Repositories;
-using Wasted.Tests.Mocks;
 using WastedApi.Controllers;
 using WastedApi.Models;
 using WastedApi.Requests;
@@ -14,6 +13,7 @@ using Xunit;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Wasted.Tests.Api;
+using WastedApi.Database;
 
 namespace Tests;
 
