@@ -113,10 +113,10 @@ public class AuthenticationController : ControllerBase
 
     [HttpPost]
     [Route("user/register")]
-    public async Task<IActionResult> UserRegister([FromBody] CustomerSignup model) =>
+    public async Task<ActionResult<Customer>> UserRegister([FromBody] CustomerSignup model) =>
         (await _customers.Create(model))
-            .Right<IActionResult>(member => Ok(member))
-            .Left(errors => Conflict(new { errors = errors }));
+            .Right<ActionResult<Customer>>(member => Ok(member))
+            .Left(errors => Conflict(new ErrorResponse { Errors = errors }));
 
     [HttpGet("user")]
     public async Task<IActionResult> GetUser()

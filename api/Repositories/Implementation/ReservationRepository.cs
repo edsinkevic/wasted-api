@@ -31,7 +31,7 @@ public class ReservationRepository : IReservationRepository
 
         var entryIds = req.Items.Map(item => item.Entry.Id);
 
-        var existingEntries = await _ctx.OfferEntries.Where(item => entryIds.Exists(id => id == item.Id)).ToListAsync();
+        var existingEntries = await _ctx.OfferEntries.Where(item => entryIds.Contains(item.Id)).ToListAsync();
 
         var itemMap = existingEntries.ToDictionary(item => item.Id);
 
@@ -59,14 +59,14 @@ public class ReservationRepository : IReservationRepository
             CreatedDate = DateTime.UtcNow.ToUtc(),
             ExpirationDate = DateTime.UtcNow.AddHours(1).ToUtc(),
             Code = String.Concat(Guid.NewGuid().ToString().Take(6)),
-            ReservationItems = (ICollection<ReservationItem>)req.Items.Map(item =>
+            ReservationItems = req.Items.Map(item =>
                 new ReservationItem
                 {
                     Id = Guid.NewGuid(),
                     ReservationId = reservationId,
                     EntryId = item.Entry.Id,
                     Amount = item.Amount,
-                })
+                }).ToList()
         };
 
         await _ctx.Reservations.AddAsync(reservation);
