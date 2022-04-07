@@ -26,5 +26,5 @@ public class MiscController : ControllerBase
     [HttpGet]
     [Route("cats")]
     public IActionResult GetCategories() =>
-        Ok(System.Enum.GetNames(typeof(Category)));
+        Ok(System.Enum.GetNames(typeof(Category)).Map(cat => cat.ToLower()));
 }
