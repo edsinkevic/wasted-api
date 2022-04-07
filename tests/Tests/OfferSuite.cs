@@ -23,6 +23,7 @@ public class OfferSuite
     [Fact]
     public async void AddOfferHappyPath()
     {
+        _api.Clean();
         var vendorCreate = new VendorCreate { Name = "Maxima" };
         var postVendor = (await _api.Vendors.Post(vendorCreate))
             .Result.As<OkObjectResult>().Value.As<Vendor>();
@@ -46,7 +47,6 @@ public class OfferSuite
              postOffer.Category == offerCreate.Category
              );
 
-        _api.Clean();
     }
 
 }

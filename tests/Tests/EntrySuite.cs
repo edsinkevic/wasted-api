@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Wasted.Tests.Api;
@@ -27,7 +28,11 @@ public class EntrySuite
     {
         _api.Clean();
 
+        await HappyPathReusable(_api);
+    }
 
+    public static async Task HappyPathReusable(Api _api)
+    {
         var vendorCreate = new VendorCreate { Name = "Maxima" };
         var postVendor = (await _api.Vendors.Post(vendorCreate))
             .Result.As<OkObjectResult>().Value.As<Vendor>();

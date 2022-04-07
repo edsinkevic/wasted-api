@@ -82,7 +82,11 @@ public class ReservationRepository : IReservationRepository
         if (!Guid.TryParse(id, out parsedId))
             return new List<string> { "Incorrect id format!" };
 
-        var reservations = await _ctx.Reservations.Where(res => res.CustomerId == parsedId).ToListAsync();
+        var reservations = await _ctx.Reservations
+            .Include(res => res.ReservationItems)
+            .ThenInclude(res => res.Entry)
+            .Where(res => res.CustomerId == parsedId)
+            .AsNoTracking().ToListAsync();
 
         if (reservations.Count() < 1)
             return new List<string> { "Reservation not found!" };
