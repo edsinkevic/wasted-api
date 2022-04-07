@@ -1,6 +1,5 @@
 using LanguageExt;
 using Microsoft.EntityFrameworkCore;
-using Wasted.Database.Interfaces;
 using Wasted.Interfaces;
 using WastedApi.Database;
 using WastedApi.Helpers;
@@ -11,8 +10,8 @@ namespace Wasted.Repositories;
 
 public class MemberRepository : IMemberRepository
 {
-    private readonly IWastedContext _ctx;
-    public MemberRepository(IWastedContext ctx)
+    private readonly WastedContext _ctx;
+    public MemberRepository(WastedContext ctx)
     {
         _ctx = ctx;
     }

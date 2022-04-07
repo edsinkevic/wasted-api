@@ -3,7 +3,6 @@ using System.Collections;
 using LanguageExt;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
-using Wasted.Database.Interfaces;
 using Wasted.Interfaces;
 using WastedApi;
 using WastedApi.Database;
@@ -15,9 +14,9 @@ namespace Wasted.Repositories;
 
 public class ReservationRepository : IReservationRepository
 {
-    private readonly IWastedContext _ctx;
+    private readonly WastedContext _ctx;
 
-    public ReservationRepository(IWastedContext ctx)
+    public ReservationRepository(WastedContext ctx)
     {
         _ctx = ctx;
     }
@@ -31,7 +30,11 @@ public class ReservationRepository : IReservationRepository
 
         var reservation = existing.First();
 
+        _ctx.Database.ExecuteSqlRaw("SET session_replication_role = replica;");
+
         await _ctx.Reservations.Include(x => x.ReservationItems).Where(x => x.Code == code).DeleteFromQueryAsync();
+
+        _ctx.Database.ExecuteSqlRaw("SET session_replication_role = DEFAULT;");
 
         return reservation;
     }

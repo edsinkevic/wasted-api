@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Npgsql;
-using Wasted.Database.Interfaces;
 using WastedApi.Models;
 
 namespace WastedApi.Database;
-public partial class WastedContext : DbContext, IWastedContext
+public partial class WastedContext : DbContext
 {
     public WastedContext()
     {

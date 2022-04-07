@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Wasted.Database.Interfaces;
 using Wasted.Interfaces;
 using Wasted.Repositories;
 using WastedApi.Converters;
@@ -21,7 +20,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<IWastedContext, WastedContext>();
+builder.Services.AddDbContext<WastedContext>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IOfferRepository, OfferRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();

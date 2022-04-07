@@ -4,15 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using WastedApi.Database;
 using WastedApi.Models;
 using WastedApi.Requests;
-using Wasted.Database.Interfaces;
 
 namespace Wasted.Repositories;
 
 public class OfferRepository : IOfferRepository
 {
-    private readonly IWastedContext _ctx;
+    private readonly WastedContext _ctx;
 
-    public OfferRepository(IWastedContext ctx)
+    public OfferRepository(WastedContext ctx)
     {
         _ctx = ctx;
     }

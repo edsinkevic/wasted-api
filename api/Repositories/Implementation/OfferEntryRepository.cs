@@ -1,6 +1,5 @@
 using LanguageExt;
 using Microsoft.EntityFrameworkCore;
-using Wasted.Database.Interfaces;
 using Wasted.Interfaces;
 using WastedApi;
 using WastedApi.Database;
@@ -12,9 +11,9 @@ namespace Wasted.Repositories;
 
 public class OfferEntryRepository : IOfferEntryRepository
 {
-    private readonly IWastedContext _ctx;
+    private readonly WastedContext _ctx;
 
-    public OfferEntryRepository(IWastedContext ctx)
+    public OfferEntryRepository(WastedContext ctx)
     {
         _ctx = ctx;
     }
