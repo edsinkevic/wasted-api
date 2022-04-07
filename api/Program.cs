@@ -24,6 +24,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<IWastedContext, WastedContext>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IOfferRepository, OfferRepository>();
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IOfferEntryRepository, OfferEntryRepository>();

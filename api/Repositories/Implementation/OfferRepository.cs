@@ -70,4 +70,23 @@ public class OfferRepository : IOfferRepository
 
         return offer;
     }
+
+    public async Task<Either<List<string>, Offer>> Delete(string id)
+    {
+        Guid parsedId;
+        if (!Guid.TryParse(id, out parsedId))
+            return new List<string> { "Incorrect id format!" };
+
+        var offers = await _ctx.Offers.Include(offer => offer.OfferEntries).Where(offer => offer.Id == parsedId).ToListAsync();
+
+        if (offers.Count() < 1)
+            return new List<string> { "Offer not found!" };
+
+        await _ctx.OfferEntries.Where(entry => entry.OfferId == parsedId).DeleteFromQueryAsync();
+        await _ctx.Offers.Where(offer => offer.Id == offers[0].Id).DeleteFromQueryAsync();
+
+        await _ctx.SaveChangesAsync();
+
+        return offers[0];
+    }
 }

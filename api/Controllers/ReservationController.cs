@@ -33,4 +33,11 @@ public class ReservationController : ControllerBase
         (await _reservations.GetByCustomerId(id))
             .Right<ActionResult<Reservation>>(res => Ok(res))
             .Left(errors => Conflict(new ErrorResponse { Errors = errors }));
+
+
+    [HttpPost("{code}")]
+    public async Task<ActionResult<Reservation>> PostCode(string code) =>
+        (await _reservations.CompleteReservation(code))
+            .Right<ActionResult<Reservation>>(res => Ok(res))
+            .Left(errors => Conflict(new ErrorResponse { Errors = errors }));
 }

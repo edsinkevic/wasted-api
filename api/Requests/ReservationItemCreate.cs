@@ -5,7 +5,8 @@ public class ReservationItemCreate
 {
     public int Amount { get; set; }
 
-    public OfferEntry Entry { get; set; } = null!;
+    public Guid EntryId { get; set; }
+    public int EntryAmount { get; set; }
 
 
 }

@@ -22,6 +22,20 @@ public class ReservationRepository : IReservationRepository
         _ctx = ctx;
     }
 
+    public async Task<Either<List<string>, Reservation>> CompleteReservation(string code)
+    {
+        var existing = await _ctx.Reservations.Include(x => x.ReservationItems).Where(x => x.Code == code).ToListAsync();
+
+        if (existing.Count() == 0)
+            return new List<string> { "Reservation not found!" };
+
+        var reservation = existing.First();
+
+        await _ctx.Reservations.Include(x => x.ReservationItems).Where(x => x.Code == code).DeleteFromQueryAsync();
+
+        return reservation;
+    }
+
     public async Task<Either<List<string>, Reservation>> Create(ReservationCreate req)
     {
         var errors = req.isValid();
@@ -29,18 +43,18 @@ public class ReservationRepository : IReservationRepository
         if (errors.Count > 0)
             return errors;
 
-        var entryIds = req.Items.Map(item => item.Entry.Id);
+        var entryIds = req.Items.Map(item => item.EntryId);
 
         var existingEntries = await _ctx.OfferEntries.Where(item => entryIds.Contains(item.Id)).ToListAsync();
 
         var itemMap = existingEntries.ToDictionary(item => item.Id);
 
-        var desynchronizedItems = req.Items.Filter(item => item.Amount > itemMap[item.Entry.Id].Amount);
+        var desynchronizedItems = req.Items.Filter(item => item.Amount > itemMap[item.EntryId].Amount);
 
         if (desynchronizedItems.Count() > 0)
-            return desynchronizedItems.Map(item => item.Entry.Id.ToString()).ToList();
+            return desynchronizedItems.Map(item => item.EntryId.ToString()).ToList();
 
-        var reservedMap = req.Items.ToDictionary(entry => entry.Entry.Id);
+        var reservedMap = req.Items.ToDictionary(entry => entry.EntryId);
         await _ctx.OfferEntries.BulkUpdateAsync(existingEntries.Map(entry =>
          new OfferEntry
          {
@@ -64,15 +78,15 @@ public class ReservationRepository : IReservationRepository
                 {
                     Id = Guid.NewGuid(),
                     ReservationId = reservationId,
-                    EntryId = item.Entry.Id,
+                    EntryId = item.EntryId,
                     Amount = item.Amount,
                 }).ToList()
         };
 
-        await _ctx.Reservations.AddAsync(reservation);
+        var newReservation = await _ctx.Reservations.AddAsync(reservation);
         await _ctx.SaveChangesAsync();
 
-        return reservation;
+        return newReservation.Entity;
 
     }
 
@@ -85,6 +99,7 @@ public class ReservationRepository : IReservationRepository
         var reservations = await _ctx.Reservations
             .Include(res => res.ReservationItems)
             .ThenInclude(res => res.Entry)
+            .ThenInclude(res => res.Offer)
             .Where(res => res.CustomerId == parsedId)
             .AsNoTracking().ToListAsync();
 

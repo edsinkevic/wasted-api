@@ -12,7 +12,7 @@ public class ReservationCreate
         if (Items.Count < 1)
             return new List<string> { "Cannot initiate empty reservation!" };
 
-        if (Items.Exists(item => item.Amount <= 0 || item.Amount > item.Entry.Amount))
+        if (Items.Exists(item => item.Amount <= 0 || item.Amount > item.EntryAmount))
             return new List<string> { "Invalid amounts" };
 
         return new List<string>();
