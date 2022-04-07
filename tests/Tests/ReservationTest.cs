@@ -51,7 +51,7 @@ public class ReservationSuite
         var reservation = new ReservationCreate
         {
             CustomerId = postCust.Id,
-            Items = new List<ReservationItemCreate> { new ReservationItemCreate { Amount = 65, Entry = entry } }
+            Items = new List<ReservationItemCreate> { new ReservationItemCreate { Amount = 65, EntryId = entry.Id, EntryAmount = entry.Amount } }
         };
 
         var postRes = (await _api.Reservations.Post(reservation))
