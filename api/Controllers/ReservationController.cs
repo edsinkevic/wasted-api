@@ -40,4 +40,10 @@ public class ReservationController : ControllerBase
         (await _reservations.CompleteReservation(code))
             .Right<ActionResult<Reservation>>(res => Ok(res))
             .Left(errors => Conflict(new ErrorResponse { Errors = errors }));
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<Reservation>> Delete(string id) =>
+        (await _reservations.CancelReservation(id))
+            .Right<ActionResult<Reservation>>(res => Ok(res))
+            .Left(errors => Conflict(new ErrorResponse { Errors = errors }));
 }

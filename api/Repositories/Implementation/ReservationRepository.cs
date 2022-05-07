@@ -30,11 +30,27 @@ public class ReservationRepository : IReservationRepository
 
         var reservation = existing.First();
 
-        _ctx.Database.ExecuteSqlRaw("SET session_replication_role = replica;");
-
+        await _ctx.Database.ExecuteSqlRawAsync("ALTER TABLE reservation_items DISABLE TRIGGER ALL;");
         await _ctx.Reservations.Include(x => x.ReservationItems).Where(x => x.Code == code).DeleteFromQueryAsync();
+        await _ctx.Database.ExecuteSqlRawAsync("ALTER TABLE reservation_items ENABLE TRIGGER ALL;");
 
-        _ctx.Database.ExecuteSqlRaw("SET session_replication_role = DEFAULT;");
+        return reservation;
+    }
+
+    public async Task<Either<List<string>, Reservation>> CancelReservation(string id)
+    {
+        Guid parsedId;
+        if (!Guid.TryParse(id, out parsedId))
+            return new List<string> { "Id incorrect format!" };
+
+        var existing = await _ctx.Reservations.Include(x => x.ReservationItems).Where(x => x.Id == parsedId).ToListAsync();
+
+        if (existing.Count() == 0)
+            return new List<string> { "Reservation not found!" };
+
+        var reservation = existing.First();
+
+        await _ctx.Reservations.Include(x => x.ReservationItems).Where(x => x.Id == parsedId).DeleteFromQueryAsync();
 
         return reservation;
     }
@@ -47,11 +63,8 @@ public class ReservationRepository : IReservationRepository
             return errors;
 
         var entryIds = req.Items.Map(item => item.EntryId);
-
         var existingEntries = await _ctx.OfferEntries.Where(item => entryIds.Contains(item.Id)).ToListAsync();
-
         var itemMap = existingEntries.ToDictionary(item => item.Id);
-
         var desynchronizedItems = req.Items.Filter(item => item.Amount > itemMap[item.EntryId].Amount);
 
         if (desynchronizedItems.Count() > 0)
@@ -89,8 +102,9 @@ public class ReservationRepository : IReservationRepository
         var newReservation = await _ctx.Reservations.AddAsync(reservation);
         await _ctx.SaveChangesAsync();
 
-        return newReservation.Entity;
+        var res = await _ctx.Reservations.Include(x => x.ReservationItems).ThenInclude(x => x.Entry).ThenInclude(x => x.Offer).Where(x => x.Id == newReservation.Entity.Id).ToListAsync();
 
+        return res.First();
     }
 
     public async Task<Either<List<string>, Reservation>> GetByCustomerId(string id)
