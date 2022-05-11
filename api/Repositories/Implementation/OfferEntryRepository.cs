@@ -19,7 +19,7 @@ public class OfferEntryRepository : IOfferEntryRepository
     }
 
     public async Task<int> Clean() =>
-        await _ctx.OfferEntries.Where(x => x.Expiry.ToDateTime(TimeOnly.MinValue) < DateTime.Now).DeleteFromQueryAsync();
+        await _ctx.Database.ExecuteSqlRawAsync("DELETE FROM offer_entries WHERE expiry < now();");
 
     public async Task<Either<List<string>, OfferEntry>> Create(OfferEntryCreate req)
     {

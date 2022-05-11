@@ -31,7 +31,9 @@ public class ReservationRepository : IReservationRepository
         var reservation = existing.First();
 
         await _ctx.Database.ExecuteSqlRawAsync("ALTER TABLE reservation_items DISABLE TRIGGER ALL;");
-        await _ctx.Reservations.Include(x => x.ReservationItems).Where(x => x.Code == code).DeleteFromQueryAsync();
+        var toDelete = _ctx.Reservations.Where(x => x.Code == code);
+        _ctx.Reservations.RemoveRange(toDelete);
+        await _ctx.SaveChangesAsync();
         await _ctx.Database.ExecuteSqlRawAsync("ALTER TABLE reservation_items ENABLE TRIGGER ALL;");
 
         return reservation;
@@ -50,7 +52,7 @@ public class ReservationRepository : IReservationRepository
 
         var reservation = existing.First();
 
-        await _ctx.Reservations.Include(x => x.ReservationItems).Where(x => x.Id == parsedId).DeleteFromQueryAsync();
+        await _ctx.Database.ExecuteSqlRawAsync($"DELETE FROM reservations WHERE id = '{parsedId.ToString()}';");
 
         return reservation;
     }
@@ -71,15 +73,14 @@ public class ReservationRepository : IReservationRepository
             return desynchronizedItems.Map(item => item.EntryId.ToString()).ToList();
 
         var reservedMap = req.Items.ToDictionary(entry => entry.EntryId);
-        await _ctx.OfferEntries.BulkUpdateAsync(existingEntries.Map(entry =>
-         new OfferEntry
-         {
-             Id = entry.Id,
-             Amount = entry.Amount - reservedMap[entry.Id].Amount,
-             Expiry = entry.Expiry,
-             Added = entry.Added,
-             OfferId = entry.OfferId
-         }));
+
+
+        existingEntries.ForEach(entry =>
+        {
+            _ctx.Database
+                .ExecuteSqlRaw($"UPDATE offer_entries SET amount = {entry.Amount - reservedMap[entry.Id].Amount} WHERE id = '{entry.Id.ToString()}';");
+        }
+        );
 
         var reservationId = Guid.NewGuid();
         var reservation = new Reservation
@@ -102,7 +103,12 @@ public class ReservationRepository : IReservationRepository
         var newReservation = await _ctx.Reservations.AddAsync(reservation);
         await _ctx.SaveChangesAsync();
 
-        var res = await _ctx.Reservations.Include(x => x.ReservationItems).ThenInclude(x => x.Entry).ThenInclude(x => x.Offer).Where(x => x.Id == newReservation.Entity.Id).ToListAsync();
+        var res = await _ctx.Reservations
+        .Include(x => x.ReservationItems)
+        .ThenInclude(x => x.Entry)
+        .ThenInclude(x => x.Offer)
+        .Where(x => x.Id == newReservation.Entity.Id)
+        .ToListAsync();
 
         return res.First();
     }

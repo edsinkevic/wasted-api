@@ -81,8 +81,8 @@ public class OfferRepository : IOfferRepository
         if (offers.Count() < 1)
             return new List<string> { "Offer not found!" };
 
-        await _ctx.OfferEntries.Where(entry => entry.OfferId == parsedId).DeleteFromQueryAsync();
-        await _ctx.Offers.Where(offer => offer.Id == offers[0].Id).DeleteFromQueryAsync();
+        var offersToDelete = _ctx.Offers.Where(offer => offer.Id == offers[0].Id);
+        _ctx.Offers.RemoveRange(offersToDelete);
 
         await _ctx.SaveChangesAsync();
 
