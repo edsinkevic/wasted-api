@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Wasted.Interfaces;
 using Wasted.Repositories;
-using Wasted.Tests.Mocks;
 using WastedApi.Controllers;
 using WastedApi.Models;
 using WastedApi.Requests;
@@ -14,6 +13,8 @@ using Xunit;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Wasted.Tests.Api;
+using WastedApi.Database;
+using System.Threading.Tasks;
 
 namespace Tests;
 
@@ -34,6 +35,11 @@ public class VendorSuite
     {
         _api.Clean();
 
+        await HappyPathReusable(_api);
+    }
+
+    public static async Task HappyPathReusable(Api _api)
+    {
         var create1 = new VendorCreate
         {
             Name = "Maxima"

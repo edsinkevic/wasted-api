@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Wasted.Tests.Api;
-using Wasted.Tests.Mocks;
+using WastedApi.Database;
 using WastedApi.Models;
 using WastedApi.Requests;
 using Xunit;
@@ -27,7 +28,11 @@ public class EntrySuite
     {
         _api.Clean();
 
+        await HappyPathReusable(_api);
+    }
 
+    public static async Task HappyPathReusable(Api _api)
+    {
         var vendorCreate = new VendorCreate { Name = "Maxima" };
         var postVendor = (await _api.Vendors.Post(vendorCreate))
             .Result.As<OkObjectResult>().Value.As<Vendor>();
@@ -46,7 +51,7 @@ public class EntrySuite
 
         var entryCreate = new OfferEntryCreate
         {
-            Expiry = DateTime.Now.AddYears(2),
+            Expiry = DateOnly.FromDateTime(DateTime.Now.AddYears(2)),
             OfferId = postOffer.Id,
             Amount = 50
         };
@@ -87,7 +92,7 @@ public class EntrySuite
 
         var entryCreate2 = new OfferEntryCreate
         {
-            Expiry = DateTime.Now.AddDays(-3),
+            Expiry = DateOnly.FromDateTime(DateTime.Now.AddDays(-3)),
             OfferId = postOffer.Id,
             Amount = 50
         };

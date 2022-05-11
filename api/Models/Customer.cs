@@ -6,9 +6,6 @@ namespace WastedApi.Models
 {
     public partial class Customer
     {
-        public Customer()
-        {
-        }
 
         public Guid Id { get; set; }
         public string UserName { get; set; } = null!;
@@ -17,5 +14,7 @@ namespace WastedApi.Models
         public string Email { get; set; } = null!;
 
         public string Hash { get; set; } = null!;
+
+        public List<Reservation> Reservations { get; set; } = null!;
     }
 }

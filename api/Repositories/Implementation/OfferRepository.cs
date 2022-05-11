@@ -4,15 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using WastedApi.Database;
 using WastedApi.Models;
 using WastedApi.Requests;
-using Wasted.Database.Interfaces;
 
 namespace Wasted.Repositories;
 
 public class OfferRepository : IOfferRepository
 {
-    private readonly IWastedContext _ctx;
+    private readonly WastedContext _ctx;
 
-    public OfferRepository(IWastedContext ctx)
+    public OfferRepository(WastedContext ctx)
     {
         _ctx = ctx;
     }
@@ -69,5 +68,24 @@ public class OfferRepository : IOfferRepository
         await _ctx.SaveChangesAsync();
 
         return offer;
+    }
+
+    public async Task<Either<List<string>, Offer>> Delete(string id)
+    {
+        Guid parsedId;
+        if (!Guid.TryParse(id, out parsedId))
+            return new List<string> { "Incorrect id format!" };
+
+        var offers = await _ctx.Offers.Include(offer => offer.OfferEntries).Where(offer => offer.Id == parsedId).ToListAsync();
+
+        if (offers.Count() < 1)
+            return new List<string> { "Offer not found!" };
+
+        var offersToDelete = _ctx.Offers.Where(offer => offer.Id == offers[0].Id);
+        _ctx.Offers.RemoveRange(offersToDelete);
+
+        await _ctx.SaveChangesAsync();
+
+        return offers[0];
     }
 }

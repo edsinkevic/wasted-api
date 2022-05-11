@@ -1,7 +1,6 @@
 
 using LanguageExt;
 using Microsoft.EntityFrameworkCore;
-using Wasted.Database.Interfaces;
 using Wasted.Interfaces;
 using WastedApi.Database;
 using WastedApi.Models;
@@ -11,9 +10,9 @@ namespace Wasted.Repositories;
 
 public class VendorRepository : IVendorRepository
 {
-    private readonly IWastedContext _ctx;
+    private readonly WastedContext _ctx;
 
-    public VendorRepository(IWastedContext ctx)
+    public VendorRepository(WastedContext ctx)
     {
         _ctx = ctx;
     }
@@ -45,7 +44,7 @@ public class VendorRepository : IVendorRepository
     public async Task<Either<List<string>, Vendor>> GetByName(string name)
     {
         var existing = await _ctx.Vendors.Where(vendor => vendor.Name == name).ToListAsync();
-        if (existing.Count > 0)
+        if (existing.Count() > 0)
             return existing.First();
 
         return new List<string> { "Vendor not found" };

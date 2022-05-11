@@ -1,6 +1,5 @@
 using LanguageExt;
 using Microsoft.EntityFrameworkCore;
-using Wasted.Database.Interfaces;
 using Wasted.Interfaces;
 using WastedApi.Database;
 using WastedApi.Helpers;
@@ -11,9 +10,9 @@ namespace Wasted.Repositories;
 
 public class CustomerRepository : ICustomerRepository
 {
-    private readonly IWastedContext _context;
+    private readonly WastedContext _context;
 
-    public CustomerRepository(IWastedContext ctx)
+    public CustomerRepository(WastedContext ctx)
     {
         _context = ctx;
     }
@@ -54,7 +53,7 @@ public class CustomerRepository : ICustomerRepository
 
     public async Task<Either<List<string>, Customer>> Get(UserLogin model)
     {
-        var existing = _context.Customers.Where(user => user.UserName == model.UserName);
+        var existing = _context.Customers.Include(x => x.Reservations).Where(user => user.UserName == model.UserName);
         if (existing.Count() == 0)
             return new List<string> { "User by that username was not found" };
 
@@ -68,7 +67,12 @@ public class CustomerRepository : ICustomerRepository
 
     public async Task<Either<List<string>, Customer>> GetById(Guid id)
     {
-        var existing = await _context.Customers.Where(x => x.Id == id).ToListAsync();
+        var existing = await _context.Customers
+            .Include(x => x.Reservations)
+            .ThenInclude(x => x.ReservationItems)
+            .ThenInclude(x => x.Entry)
+            .ThenInclude(x => x.Offer)
+            .Where(x => x.Id == id).ToListAsync();
 
         if (existing.Count == 0)
             return new List<string> { "User not found" };

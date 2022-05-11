@@ -40,5 +40,11 @@ public class OfferController : ControllerBase
     public async Task<IActionResult> Put([FromBody] OfferUpdate request) =>
         (await _offers.Update(request))
             .Right<IActionResult>(offer => Ok(offer))
-            .Left(errors => Conflict(new { errors = errors }));
+            .Left(errors => Conflict(new ErrorResponse { Errors = errors }));
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<Offer>> Delete(string id) =>
+        (await _offers.Delete(id))
+            .Right<ActionResult<Offer>>(Offer => Ok(Offer))
+            .Left(errors => Conflict(new ErrorResponse { Errors = errors }));
 }
