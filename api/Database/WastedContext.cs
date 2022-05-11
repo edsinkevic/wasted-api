@@ -243,6 +243,20 @@ public partial class WastedContext : DbContext
                             .HasColumnName("name");
         });
 
+        modelBuilder.Entity<AdminRole>(entity =>
+        {
+            entity.ToTable("admin_roles");
+
+            entity.Property(e => e.Id)
+                            .ValueGeneratedNever()
+                            .HasColumnName("id");
+
+            entity.HasOne(d => d.Member)
+                        .WithMany(d => d.AdminRoles)
+                        .HasForeignKey(d => d.MemberId)
+                        .HasConstraintName("admin_roles_member_id_fkey");
+        });
+
         OnModelCreatingPartial(modelBuilder);
     }
 

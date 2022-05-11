@@ -13,5 +13,7 @@ namespace WastedApi.Models
         public string Email { get; set; } = null!;
         public string Hash { get; set; } = null!;
         public virtual Vendor Vendor { get; set; } = null!;
+
+        public virtual List<AdminRole> AdminRoles { get; set; } = null!;
     }
 }
