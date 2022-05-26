@@ -17,6 +17,7 @@ public class Api
     private readonly CustomerRepository _customers;
     private readonly MemberRepository _members;
     private readonly ReservationRepository _reservations;
+    private readonly SignupService _signups;
 
     public VendorController Vendors { get; }
     public OfferController Offers { get; }
@@ -45,6 +46,7 @@ public class Api
         _customers = new CustomerRepository(_ctx);
         _members = new MemberRepository(_ctx);
         _reservations = new ReservationRepository(_ctx);
+        _signups = new SignupService(_members, _vendors);
 
         var vl = new Mock<ILogger<VendorController>>();
         var ol = new Mock<ILogger<OfferController>>();
@@ -55,7 +57,7 @@ public class Api
         Vendors = new VendorController(vl.Object, _vendors);
         Offers = new OfferController(ol.Object, _offers);
         OfferEntries = new OfferEntryController(el.Object, _entries);
-        Auth = new AuthenticationController(al.Object, _jwt, _members, _customers);
+        Auth = new AuthenticationController(al.Object, _jwt, _members, _customers, _signups);
         Reservations = new ReservationController(rl.Object, _reservations);
 
         Clean();

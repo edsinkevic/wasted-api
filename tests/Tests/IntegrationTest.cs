@@ -13,12 +13,12 @@ using Xunit;
 namespace Tests;
 
 [Collection("Database")]
-public class ReservationSuite
+public class IntegrationTest
 {
     private readonly WastedContext _ctx;
     private readonly Api _api;
 
-    public ReservationSuite()
+    public IntegrationTest()
     {
         _ctx = new WastedContext();
         _api = new Api(_ctx);

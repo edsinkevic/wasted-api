@@ -65,6 +65,12 @@ CREATE TABLE reservation_items
     amount INTEGER NOT NULL
 );
 
+CREATE TABLE admin_roles
+(
+    id UUID PRIMARY KEY,
+    member_id UUID NOT NULL REFERENCES members (id) ON DELETE CASCADE
+);
+
 CREATE FUNCTION func() RETURNS TRIGGER AS $func$
     BEGIN
         IF (TG_OP = 'DELETE') THEN
