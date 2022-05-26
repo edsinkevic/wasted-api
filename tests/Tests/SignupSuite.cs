@@ -23,7 +23,6 @@ public class SignupSuite
         _api = new Api(_ctx);
     }
 
-    [Fact]
     public async void Test()
     {
         var signup = new MemberSignupWithVendor
