@@ -18,7 +18,7 @@ public class IntegrationTest
     private readonly WastedContext _ctx;
     private readonly Api _api;
 
-    public Integration()
+    public IntegrationTest()
     {
         _ctx = new WastedContext();
         _api = new Api(_ctx);
