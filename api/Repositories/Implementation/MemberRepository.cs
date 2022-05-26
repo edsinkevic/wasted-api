@@ -15,7 +15,7 @@ public class MemberRepository : IMemberRepository
     {
         _ctx = ctx;
     }
-    public async Task<Either<List<string>, Member>> Create(MemberSignup req)
+    public async Task<Either<List<string>, Member>> Create(MemberSignup req, bool isAdmin)
     {
         var errors = req.isValid();
 
@@ -33,9 +33,10 @@ public class MemberRepository : IMemberRepository
         var salt = BCrypt.Net.BCrypt.GenerateSalt(13);
         var hash = BCrypt.Net.BCrypt.HashPassword(req.Password, salt);
 
+        var memberId = Guid.NewGuid();
         var member = new Member
         {
-            Id = Guid.NewGuid(),
+            Id = memberId,
             UserName = req.UserName,
             FirstName = req.FirstName,
             LastName = req.LastName,
@@ -43,6 +44,9 @@ public class MemberRepository : IMemberRepository
             Hash = hash,
             VendorId = req.VendorId
         };
+
+        if (isAdmin)
+            member.AdminRoles = new List<AdminRole> { new AdminRole { MemberId = memberId } };
 
         await _ctx.Members.AddAsync(member);
         await _ctx.SaveChangesAsync();

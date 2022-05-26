@@ -21,22 +21,30 @@ public class AuthenticationController : ControllerBase
     private readonly JwtService _jwt;
     private readonly IMemberRepository _members;
     private readonly ICustomerRepository _customers;
+    private readonly SignupService _signups;
 
-    public AuthenticationController(ILogger<AuthenticationController> logger, JwtService jwt, IMemberRepository members, ICustomerRepository customers)
+    public AuthenticationController(ILogger<AuthenticationController> logger, JwtService jwt, IMemberRepository members, ICustomerRepository customers, SignupService signups)
     {
         _logger = logger;
         _jwt = jwt;
         _members = members;
         _customers = customers;
+        _signups = signups;
     }
 
     [HttpPost]
     [Route("member/register")]
     public async Task<IActionResult> MemberRegister([FromBody] MemberSignup model) =>
-        (await _members.Create(model))
+        (await _members.Create(model, false))
             .Right<IActionResult>(member => Ok(member))
             .Left(errors => Conflict(new { errors = errors }));
 
+    [HttpPost]
+    [Route("member/register/vendor")]
+    public async Task<ActionResult<Member>> MemberRegisterWithVendor([FromBody] MemberSignupWithVendor model) =>
+    (await _signups.CreateMemberWithVendor(model))
+        .Right<ActionResult>(member => Ok(member))
+        .Left(errors => Conflict(new { errors = errors }));
 
     [HttpPost]
     [Route("member/login")]
